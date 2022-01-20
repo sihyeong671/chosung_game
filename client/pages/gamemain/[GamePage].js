@@ -4,6 +4,8 @@ import { io, Socket } from "socket.io-client";
 import React, { useState, useEffect } from 'react';
 import ProgressBar from "./ProgressBar.js";
 import uuid from 'react-uuid'
+import { useRouter } from 'next/router'
+
 //import  Grid  from '@material-ui/core/Grid';
 //import {Typography} from '@material-ui/core';
 //import {Container} from '@material-ui/core';
@@ -30,6 +32,10 @@ import uuid from 'react-uuid'
 export default function GamePage() {
 
   //const classes = useStyles();
+  const router = useRouter()
+  console.log(router);
+  const { GamePage } = router.query
+  console.log("id"+GamePage);
 
   //const answer = ['답1', '답1', '답1', '답1', '답1', '답1', '답1', '답1']
   const player = ['사람1', '사람1', '사람1', '사람1', '사람1', '사람1']

@@ -6,7 +6,7 @@ import Button from '@mui/material/Button'
 
 import UserCard from '../components/UserCard'
 import Room from '../components/Room'
-
+import Link from 'next/link'
 
 export default function Lobby(){
 
@@ -118,7 +118,9 @@ export default function Lobby(){
         <div className='rooms_wrapper'>
           <div className='button'>
             <Button onClick={()=>{console.log("click");}}variant="contained">방 만들기</Button>
-            <Button variant="contained">빠른 입장</Button>
+            <Link href="/gamemain/GamePage=123">
+              <Button onClick={()=>{}} variant="contained">빠른 입장</Button>
+            </Link>
           </div>
           <div className='rooms'>
             {rooms.map((room)=>{
