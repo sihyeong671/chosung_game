@@ -1,22 +1,44 @@
 import VerticalLayout from "../../components/VerticalLayout";
 import HorizontalLayout from "../../components/HorizontalLayout";
 import { io, Socket } from "socket.io-client";
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import ProgressBar from "./ProgressBar.js";
+//import  Grid  from '@material-ui/core/Grid';
+//import {Typography} from '@material-ui/core';
+//import {Container} from '@material-ui/core';
+//import Card from '@mui/material/Card';
+//import CardHeader from '@mui/material/Card';
+//import CardContent from '@mui/material/Card';
+//import { makeStyles } from "@mui/styles";
+//import Box from '@mui/material/Box';
+//import { alpha } from '@mui/material/styles';
 
 //need to add server domain
-//const socket = io("http://");
+const socket = io("http://192.249.18.147:80");
 
-// socket.on("connect", () => {
-//   console.log(socket.connected);
-// });
+  socket.on("connect", () => {
+    console.log(socket.connected);
+  });
+
+// const useStyles = makeStyles({
+//   problem_card: {
+//     backgroundColor: 'green',
+//   }
+// })
 
 export default function GamePage() {
 
-  const answer = ['답1', '답1', '답1', '답1', '답1', '답1', '답1', '답1']
+  //const classes = useStyles();
+
+  //const answer = ['답1', '답1', '답1', '답1', '답1', '답1', '답1', '답1']
   const player = ['사람1', '사람1', '사람1', '사람1', '사람1', '사람1']
   const chatting = ['chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting']
+  const problem = "ㅁㅈㄹ ㅂㅇㅇㅇㅎ" 
 
   const [message, set_message] = useState([]);
+
+  
+  const second = 10;
 
   // const handlepost = (e) => {
   //   socket.emit('new_message', {message})
@@ -28,25 +50,16 @@ export default function GamePage() {
       <div className='game_page' >
         <VerticalLayout>
           <div className='progress_bar'>
-            progress bar
+            <ProgressBar second={second}/>
           </div>
           <div>
-            <VerticalLayout>
-              <div className='question'>
-                문제
-              </div>
-              <div className='answer_list'>
-                <HorizontalLayout>
-                  {
-                      answer.map(item => {
-                        return(
-                          <div className='answer'>{ item }</div>
-                        )
-                      })
-                  }
-                </HorizontalLayout>
-              </div>
-            </VerticalLayout>
+            <div className='question'>
+              {/*<Card elevation={5} className={classes.problem_card}>
+                <CardHeader title={problem}></CardHeader>
+                <CardContent></CardContent>
+              </Card>*/}
+              <span className='question_text'>{problem}</span>
+            </div>
           </div>
           <div>
             <VerticalLayout>
@@ -77,7 +90,7 @@ export default function GamePage() {
                   </div>
                   <HorizontalLayout className='chatting_bottom'>
                     <input type='text' className='chatting_input' placeholder='채팅 입력창' onChange={(e) => set_message(e.target.value)}></input>
-                    <button className='send_btn' onClick={handlepost}>보내기</button>
+                    <button className='send_btn'>보내기</button>
                   </HorizontalLayout>
                 </VerticalLayout>
               </div>
@@ -95,11 +108,22 @@ export default function GamePage() {
         }
         .progress_bar{
           height: 5vh;
-          margin: auto;
+          width: 100%;
+          margin:auto;
+          margin-bottom:10px;
         }
         .question{
-          height: 15vh;
+          display: table;
+          height: 20vh;
           margin: auto;
+          text-align: center;
+        }
+        .question_text{
+          display: table-cell;
+          vertical-align: middle;
+          font-size: 80px;
+          font-weight: bold;
+          padding-bottom: 10px;
         }
         .answer{
           border: solid 1px;
