@@ -1,5 +1,14 @@
 import VerticalLayout from "../../components/VerticalLayout";
 import HorizontalLayout from "../../components/HorizontalLayout";
+import { io, Socket } from "socket.io-client";
+import { useState } from 'react';
+
+//need to add server domain
+//const socket = io("http://");
+
+// socket.on("connect", () => {
+//   console.log(socket.connected);
+// });
 
 export default function GamePage() {
 
@@ -7,7 +16,14 @@ export default function GamePage() {
   const player = ['사람1', '사람1', '사람1', '사람1', '사람1', '사람1']
   const chatting = ['chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting']
 
-  return(
+  const [message, set_message] = useState([]);
+
+  // const handlepost = (e) => {
+  //   socket.emit('new_message', {message})
+  // }
+
+
+  return(         
     <>
       <div className='game_page' >
         <VerticalLayout>
@@ -17,7 +33,7 @@ export default function GamePage() {
           <div>
             <VerticalLayout>
               <div className='question'>
-                <p>ㅊㅅ</p>
+                문제
               </div>
               <div className='answer_list'>
                 <HorizontalLayout>
@@ -60,8 +76,8 @@ export default function GamePage() {
                     </ul>
                   </div>
                   <HorizontalLayout className='chatting_bottom'>
-                    <input type='text' className='chatting_input' placeholder='채팅 입력창'></input>
-                    <button className='send_btn'>보내기</button>
+                    <input type='text' className='chatting_input' placeholder='채팅 입력창' onChange={(e) => set_message(e.target.value)}></input>
+                    <button className='send_btn' onClick={handlepost}>보내기</button>
                   </HorizontalLayout>
                 </VerticalLayout>
               </div>
