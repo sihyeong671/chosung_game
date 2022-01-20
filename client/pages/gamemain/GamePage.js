@@ -3,6 +3,7 @@ import HorizontalLayout from "../../components/HorizontalLayout";
 import { io, Socket } from "socket.io-client";
 import React, { useState, useEffect } from 'react';
 import ProgressBar from "./ProgressBar.js";
+import uuid from 'react-uuid'
 //import  Grid  from '@material-ui/core/Grid';
 //import {Typography} from '@material-ui/core';
 //import {Container} from '@material-ui/core';
@@ -14,11 +15,11 @@ import ProgressBar from "./ProgressBar.js";
 //import { alpha } from '@mui/material/styles';
 
 //need to add server domain
-const socket = io("http://192.249.18.147:80");
+// const socket = io("http://192.249.18.147:80");
 
-  socket.on("connect", () => {
-    console.log(socket.connected);
-  });
+  // socket.on("connect", () => {
+  //   console.log(socket.connected);
+  // });
 
 // const useStyles = makeStyles({
 //   problem_card: {
@@ -68,7 +69,7 @@ export default function GamePage() {
                   {
                       player.map(item => {
                         return(
-                          <div className='player'>{ item }</div>
+                          <div key={uuid()} className='player'>{ item }</div>
                         )
                       })
                   }
@@ -82,7 +83,7 @@ export default function GamePage() {
                       {
                         chatting.map(item =>{
                           return(
-                            <li>{item}</li>
+                            <li key={uuid()}>{item}</li>
                           )
                         })
                       }
