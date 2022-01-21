@@ -3,13 +3,19 @@ import Image from 'next/image'
 import axios from 'axios'
 import uuid from 'react-uuid'
 import Button from '@mui/material/Button'
+import { useEffect, useState } from 'react'
 
 import UserCard from '../components/UserCard'
 import Room from '../components/Room'
 import Link from 'next/link'
+import io from 'socket.io-client'
+import { connectSocket } from '../utils/socket/socketManger'
 
 export default function Lobby(){
 
+  useEffect(()=>{
+    connectSocket()
+  },[])
   // let user_info;
   // let my_rank;
   // useEffect(async () => {
@@ -117,8 +123,8 @@ export default function Lobby(){
         </div>
         <div className='rooms_wrapper'>
           <div className='button'>
-            <Button onClick={()=>{console.log("click");}}variant="contained">방 만들기</Button>
-            <Link href="/gamemain/GamePage=123">
+            <Button onClick={()=>{}}variant="contained">방 만들기</Button>
+            <Link href="/gamemain/123">
               <Button onClick={()=>{}} variant="contained">빠른 입장</Button>
             </Link>
           </div>
@@ -172,3 +178,4 @@ export default function Lobby(){
     </>
   )
 }
+

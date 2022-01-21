@@ -1,5 +1,4 @@
 export default function UserCard({idx, user_info}){
-  console.log(user_info);
   const nick_name = user_info.nick_name
   const score = user_info.score
   const rank = idx

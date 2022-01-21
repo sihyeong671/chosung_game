@@ -1,6 +1,9 @@
 import Head from 'next/head'
 import Image from 'next/image'
 
+import Button from '@mui/material/Button'
+import Link from 'next/link'
+
 export default function Home() {
     return(
       <div className="main_screen">
@@ -9,9 +12,11 @@ export default function Home() {
         </div>
         <div className='login_wrapper'>
           <div>
-            <div>
-              게스트 로그인
-            </div>
+            <Link href={'/lobby'}>
+              <Button>
+                게스트 로그인
+              </Button>
+            </Link>
             <div>
               카카오 로그인
             </div>

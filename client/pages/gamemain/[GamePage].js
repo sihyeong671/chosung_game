@@ -33,9 +33,7 @@ export default function GamePage() {
 
   //const classes = useStyles();
   const router = useRouter()
-  console.log(router);
   const { GamePage } = router.query
-  console.log("id"+GamePage);
 
   //const answer = ['답1', '답1', '답1', '답1', '답1', '답1', '답1', '답1']
   const player = ['사람1', '사람1', '사람1', '사람1', '사람1', '사람1']
