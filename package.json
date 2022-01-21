@@ -1,0 +1,26 @@
+{
+  "name": "chosung_game",
+  "version": "1.0.0",
+  "description": "훈민정음 게임",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sihyeong671/chosung_game.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sihyeong671/chosung_game/issues"
+  },
+  "homepage": "https://github.com/sihyeong671/chosung_game#readme",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "express-session": "^1.17.2",
+    "qs": "^6.10.3"
+  }
+}
