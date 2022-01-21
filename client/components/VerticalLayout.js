@@ -4,7 +4,6 @@ const layout_vertical = {
     flexDirection: 'column',
     width: '100%',
     border: 'solid 1px',
-    padding: '10px',
 }
 
 export default function VerticalLayout({ children }){

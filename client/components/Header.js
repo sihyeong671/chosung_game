@@ -10,6 +10,7 @@ export default function Header(){
         {`
           .header{
             background-color: yellow;
+            height: 10vh;
           }
         `}
       </style>

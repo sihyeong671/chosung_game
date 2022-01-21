@@ -8,11 +8,18 @@ export function connectSocket(){
   socket.on('connect', ()=>{
     console.log('connect - ', socket.id);
   })
+
+  
 } 
 
 export function makeRoom(room_data){
   
   socket.emit('make_room',)
+}
+
+export function sendMessage(state){
+  console.log(state)
+  socket.emit('message', {content: state.message, user: state.user})
 }
 
 

@@ -4,7 +4,6 @@ const layout_horizontal = {
   flexDirection: 'row',
   width: '100%',
   border: 'solid 1px',
-  padding: '10px',
 }
 
 export default function HorizontalLayout({ children }){
