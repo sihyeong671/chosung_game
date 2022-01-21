@@ -90,19 +90,30 @@ io.sockets.on('connection', (socket) => {
 	let name;
 	let round_timerId=-1,hint_timerId=-1;
 	
+	for(let rid of roomSet){// 처음 들어왔을때 모든 방 정보를 그 소켓에만 보내기
+		let room=rooms[rid];
+		const room_info={
+			room_id:rid,
+			room_title:room.title,
+			room_cnt:room.rcnt,
+			room_readycnt:room.readycnt
+		}
+		socket.emit(`update_room`,room_info);
+	}
+
 	socket.on('getmystatus',(data)=>{
 		name = data.name;
 		User.findOne({ 'name': name }, function (err, person) {
-			  if (err) return handleError(err);
-			  score=0;
-			  if(person==null){
-				User.create({'name':name, score:0})
-			  }
-			  else score=person.score;			  
-			  console.log(`getstatus ${username} : %d ;point`,score);
-			  io.emit('yourstatus',{score:score});
-		  })
-	  })
+			if (err) return handleError(err);
+			score=0;
+			if(person==null){
+			User.create({'name':name, score:0})
+			}
+			else score=person.score;			  
+			console.log(`getstatus ${username} : %d ;point`,score);
+			io.emit('yourstatus',{score:score});
+		})
+	})
 	
 	socket.on('make_room', (data) => {
 		room_id=roomnumber;
