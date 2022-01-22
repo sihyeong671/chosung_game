@@ -1,4 +1,5 @@
 import React from "react";
+import { Color } from "../utils/color/colors";
 
 const ProgressBar = (props) => {
   const { second } = props
@@ -25,7 +26,7 @@ const ProgressBar = (props) => {
         }
         .filler{
           height: 100%;
-          background-color: #00CC00;
+          background-color: ${Color.green_4};
           border-radius: inherit;
           padding: 5px;
           text-align: right;

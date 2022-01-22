@@ -11,17 +11,20 @@ import { socket } from "../utils/socket/socketManger";
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from "@mui/styles";
 import {Color} from "../utils/color/colors";
 
 const useStyles = makeStyles({
-  problem_card: {
-    backgroundColor: 'green',
-  },
   player: {
     margin: 'auto',
+    backgroundColor: Color.green_1,
   },
+  player_img: {
+    width: '80px',
+    marginRight: '8px',
+  }
 })
 
 //for test
@@ -46,7 +49,7 @@ export default function GamePage() {
       score: '점수2'
     },
     {
-      name: '사람3', 
+      name: '이름이길면어떻게될까?', 
       score: '점수3'
     },
     {
@@ -208,31 +211,35 @@ export default function GamePage() {
                 <CardHeader title={problem}></CardHeader>
                 <CardContent></CardContent>
               </Card>*/}
-              {/*<span className='question_text'>{problem}</span>*/}
-              <span className='question_text'>ㅊ ㄹ ㄱㄷ ㅎ ㄱㅇㅂㅌ</span>
+              <span className='question_text'>{problem}</span>
+              {/*<span className='question_text'>ㅊ ㄹ ㄱㄷ ㅎ ㄱㅇㅂㅌ</span>*/}
             </div>
           </div>
           <div>
             <VerticalLayout>
-              <div className='set_width'>
+              <div className='set_player'>
                 <HorizontalLayout>
                   {
                       player.map(item => {
                         return(
-                          <Card key={uuid()} className={classes.player}>
+                          <Card key={uuid()} className={classes.player} elevation={5}>
                             <CardContent>
-                              <Typography variant='h6' component='div'>
-                                {item.name}
-                              </Typography>
-                              <Typography variant='body2'>
-                                {item.score}
-                              </Typography>
+                              <HorizontalLayout>
+                                <CardMedia
+                                  component='img'
+                                  height='80'
+                                  image='/img/test.jpg' className={classes.player_img}/>
+                                <div>
+                                <Typography variant='h6' component='div'>
+                                  {item.name}
+                                </Typography>
+                                <Typography variant='body2'>
+                                  {item.score}
+                                </Typography>
+                                </div>
+                              </HorizontalLayout>
                             </CardContent>
                           </Card>
-                          //<div key={uuid()} className='player'>
-                          //  <div>{ item.name }</div>
-                          //  <div>{ item.score }</div>
-                          //</div>
                         )
                       })
                   }
@@ -247,8 +254,8 @@ export default function GamePage() {
                         if(msg.user == saveduser){
                           console.log("me")
                           return(
-                            <div key={uuid()} className='my_message'>
-                              <span>{msg.message}</span>
+                            <div>
+                              <span key={uuid()} className='my_message'>{msg.message}</span>
                             </div>
                           )
                         }
@@ -291,7 +298,7 @@ export default function GamePage() {
         }
         .question{
           display: table;
-          height: 30vh;
+          height: 25vh;
           margin: auto;
           text-align: center;
         }
@@ -302,17 +309,27 @@ export default function GamePage() {
           font-weight: bold;
           padding-bottom: 10px;
         }
-        
+        .set_player{
+          margin-bottom: 16px;
+        }
         #chatting{
+          display: flex;
+          flex-direction: column;
           height: 40vh;
           overflow-y: scroll;
           overflow-x: hidden;
         }
         .my_message{
-          color: ${Color.main_green};
+          float: right;
+          background-color: ${Color.yellow_2};
+          padding: 10px;
+          margin: 10px;
         }
         .other_message{
-          color: blue;
+          float: right;
+          background-color: ${Color.green_2};
+          padding: 10px;
+          margin: 10px;
         }
         #chatting_input{
           width: 95%;

@@ -2,7 +2,7 @@ import HorizontalLayout from "./HorizontalLayout";
 import VerticalLayout from "./VerticalLayout";
 import {useState, useRef} from 'react'
 
-import { makeRoom } from "../utils/socket/socketManger";
+import { makeRoom, socket } from "../utils/socket/socketManger";
 import { useRouter } from "next/router";
 
 export default function CreateRoom(props){
