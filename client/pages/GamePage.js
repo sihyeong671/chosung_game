@@ -41,62 +41,6 @@ export default function GamePage() {
   const saveduser = "userTest"
 
   let round_start = false
-
-  // const player = [
-  //   {
-  //     name: '사람1', 
-  //     score: '점수1'
-  //   },
-  //   {
-  //     name: '사람2', 
-  //     score: '점수2'
-  //   },
-  //   {
-  //     name: '이름이길면어떻게될까?', 
-  //     score: '점수3'
-  //   },
-  //   {
-  //     name: '사람4', 
-  //     score: '점수4'
-  //   },
-  //   {
-  //     name: '사람5', 
-  //     score: '점수5'
-  //   },
-  //   {
-  //     name: '사람6', 
-  //     score: '점수6'
-  //   },
-  // ]
-  // const [player, set_player] = useState([])
-  // useEffect(() => {
-  //   set_player([
-  //     {
-  //       name: '사람1', 
-  //       score: '점수1'
-  //     },
-  //     {
-  //       name: '사람2', 
-  //       score: '점수2'
-  //     },
-  //     {
-  //       name: '사람3', 
-  //       score: '점수3'
-  //     },
-  //     {
-  //       name: '사람4', 
-  //       score: '점수4'
-  //     },
-  //     {
-  //       name: '사람5', 
-  //       score: '점수5'
-  //     },
-  //     {
-  //       name: '사람6', 
-  //       score: '점수6'
-  //     },
-  //   ])
-  // }, [player])
   
 
   const [problem, set_problem] = useState('')
@@ -135,20 +79,24 @@ export default function GamePage() {
       console.log('correct' + data.user)
     })
 
-    // socket.on('update_detail_room', (data) => {
-    //   set_player(data.pnams)
-    // })
-
   }, [round_start, problem])
 
   
-
+  let ready_state = false
   //준비하기 버튼 눌렀을 때
   const handleready = () =>{
     //for test
     // socket.emit('make_room', {title: 'test', user: 'testuser'})
-    ready()
-    //클릭 비활성화
+    if(ready_state === false){
+      ready_state = true;
+      ready()
+      console.log("ready: " + ready_state)
+    }
+    else{
+      ready_state = false
+      //서버쪽에 보내서 처리 필요
+    }
+    
     //ui 바뀌도록
   }
 
@@ -282,7 +230,10 @@ export default function GamePage() {
                   </form>
               </div>
               <div className='ready'>
-                <button onClick={handleready}>준비하기</button>
+                <HorizontalLayout>
+                  <button className='ready_btn' onClick={handleready}>준비하기</button>
+                  <button className='out_btn'>방 나가기</button>
+                </HorizontalLayout>
               </div>
             </VerticalLayout>
           </div>
@@ -301,7 +252,7 @@ export default function GamePage() {
         }
         .question{
           display: table;
-          height: 25vh;
+          height: 20vh;
           margin: auto;
           text-align: center;
         }
@@ -318,7 +269,7 @@ export default function GamePage() {
         #chatting{
           display: flex;
           flex-direction: column;
-          height: 40vh;
+          height: 35vh;
           overflow-y: scroll;
           overflow-x: hidden;
         }
@@ -336,11 +287,37 @@ export default function GamePage() {
         }
         #chatting_input{
           width: 95%;
+          height: 30px;
           margin: auto;
+          border-radius: 20px;
+          border-color: ${Color.green_2};
+          padding: 3px;
+        }
+        .chatting_bottom{
+          margin-top: 3px;
+          margin-bottom:16px;
         }
         .ready{
           height: 5vh;
           margin:auto;
+        }
+        .ready_btn{
+          background-color: ${Color.green_6};
+          border: none;
+          padding: 5px 16px;
+          color: white;
+          font-size: 20px;
+          font-weight: bold;
+          margin-right: 10px;
+        }
+        .out_btn{
+          background-color: ${Color.green_6};
+          border: none;
+          padding: 5px 16px;
+          color: white;
+          font-size: 20px;
+          font-weight: bold;
+          margin-left: 10px;
         }
       `}
       </style>
