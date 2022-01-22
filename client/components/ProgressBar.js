@@ -18,9 +18,10 @@ const ProgressBar = (props) => {
       </div>
       <style jsx>{`
         .container{
-          width: 100%;
           background-color: #E0E0DE;
           border-radius: 50px;
+          margin-left: 8px;
+          margin-right: 8px;
         }
         .filler{
           height: 100%;
@@ -32,7 +33,7 @@ const ProgressBar = (props) => {
         .label{
           padding: 5px;
           color: white;
-          font-size = 10px;
+          font-size = 8px;
           font-weight: bold;
         }
       `}
