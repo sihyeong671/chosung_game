@@ -11,6 +11,7 @@ export default function Header(){
           .header{
             background-color: yellow;
             height: 10vh;
+            margin-bottom: 5px;
           }
         `}
       </style>

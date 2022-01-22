@@ -22,4 +22,8 @@ export function sendMessage(state){
   socket.emit('message', {content: state.message, user: state.user})
 }
 
+export function ready(){
+  socket.emit('ready')
+}
+
 
