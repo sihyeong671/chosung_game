@@ -16,7 +16,6 @@ import { socket } from "../utils/socket/socketManger";
 
 
 export default function GamePage() {
-
   //const classes = useStyles();
   const router = useRouter()
   const { GamePage } = router.query
@@ -42,8 +41,6 @@ export default function GamePage() {
       </div>
     ))
   }
-  
-  const second = 10;
 
   const handlepost = (e) => {
     e.preventDefault()
@@ -60,13 +57,35 @@ export default function GamePage() {
     chatting_view.scrollBy({top:100})
   }
 
+  let max_second = 60
+
+  const [seconds, set_seconds] = useState(0)
+
+  useEffect(() => {
+    const set_timer = setInterval(() => {
+      if(seconds == max_second){
+        set_seconds(0)
+      }
+      else{
+        set_seconds(seconds + 1)
+      }
+      
+      console.log(seconds)
+    }, 1000);
+
+    
+
+    return () => clearInterval(set_timer)
+  }, [seconds])
+  
+
 
   return(         
     <>
       <div className='game_page' >
         <VerticalLayout>
           <div className='progress_bar'>
-            <ProgressBar second={second}/>
+            <ProgressBar second={seconds}/>
           </div>
           <div>
             <div className='question'>
@@ -95,12 +114,11 @@ export default function GamePage() {
                   <div id='chatting' >
                     {renderChat()}
                   </div>
-                  <HorizontalLayout className='chatting_bottom'>
-                    <form onSubmit={handlepost}>
-                      <input type='text' id='chatting_input' placeholder='채팅 입력창' onChange={e=>{set_message(e.target.value)}} value={message}></input>
-
-                    </form>
-                  </HorizontalLayout>
+                  <div>
+                      <form onSubmit={handlepost} className='chatting_bottom'>
+                        <input type='text' id='chatting_input' placeholder='채팅 입력창' onChange={e=>{set_message(e.target.value)}} value={message}></input>
+                      </form>
+                  </div>
                 </VerticalLayout>
               </div>
               <div className='ready'>
@@ -120,6 +138,7 @@ export default function GamePage() {
           width: 100%;
           margin:auto;
           margin-bottom:10px;
+          padding-top: 5px;
         }
         .question{
           display: table;
@@ -146,14 +165,9 @@ export default function GamePage() {
           overflow-x: hidden;
         }
         .chatting_bottom{
-          height: 10vh;
         }
         #chatting_input{
           width: 95%;
-          margin: auto;
-        }
-        .send_btn{
-          width: 5%;
           margin: auto;
         }
         .ready{
