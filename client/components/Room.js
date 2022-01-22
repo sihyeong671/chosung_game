@@ -1,4 +1,16 @@
+import { socket } from "../utils/socket/socketManger"
+
+
 export default function Room({room_id, room_title, room_cnt, room_readycnt}){
+  
+  const enterRoom = (room_id) => {
+    const info = {
+      room_id: room_id,
+      user: sessionStorage.getItem('nickname'),
+    }
+    // socket.emit('enter_room', info)
+    console.log(info);
+  }
 
   return(
     <>
@@ -18,6 +30,9 @@ export default function Room({room_id, room_title, room_cnt, room_readycnt}){
           <div className="state">
             게임 여부
           </div>
+          <button
+          onClick={()=>{enterRoom(room_id)}}
+          >참가하기</button>
         </div>
       </div>
       <style jsx>{`

@@ -13,7 +13,9 @@ export default function Home() {
         <div className='login_wrapper'>
           <div>
             <Link href={'/lobby'}>
-              <Button>
+              <Button onClick={()=>{
+                sessionStorage.setItem('guest', 'true')
+              }}>
                 게스트 로그인
               </Button>
             </Link>

@@ -9,22 +9,34 @@ import UserCard from '../components/UserCard'
 import Room from '../components/Room'
 import Link from 'next/link'
 import io from 'socket.io-client'
-import { connectSocket } from '../utils/socket/socketManger'
+import { connectSocket, makeRoom, socket } from '../utils/socket/socketManger'
+import CreateRoom from '../components/CreateRoom'
+import { useRouter } from 'next/router'
+import { updateDetailRoom, updateRoom } from '../utils/roomdata/roomdata'
 
 export default function Lobby(){
 
-  useEffect(()=>{
-    connectSocket()
+  const [show_modal, set_show_modal] = useState(false)
+
+  const off_modal = () => {
+    set_show_modal(false)
+  }
+
+  useEffect(async ()=>{
+    await connectSocket()
+    return(()=>{
+      console.log('clean lobby');
+    })
   },[])
-  // let user_info;
-  // let my_rank;
-  // useEffect(async () => {
-  //   const user_res = await axios.get();
-  //   const room_res = await axios.get();
-  
-  //   user_info
-  //   배열 sort이후 대입
-  // }, []);
+
+  const quickEnter = () => {
+    const info = {
+      room_id: -1,
+      user: sessionStorage.getItem('nickname'),
+    }
+    socket.emit('enter_room', info)
+  }
+
   const user_infos = [
     {
       nick_name: '시형',
@@ -123,9 +135,17 @@ export default function Lobby(){
         </div>
         <div className='rooms_wrapper'>
           <div className='button'>
-            <Button onClick={()=>{}}variant="contained">방 만들기</Button>
-            <Link href="/gamemain/123">
-              <Button onClick={()=>{}} variant="contained">빠른 입장</Button>
+              <Button onClick={()=>{
+                set_show_modal(true)
+              }}variant="contained">방 만들기</Button>
+            <Link href="/GamePage">
+              <Button onClick={()=>{
+                
+                socket.emit('enter_room', {
+                  room_id: -1,
+                  name: sessionStorage.getItem('nickname'),
+                })
+              }} variant="contained">빠른 입장</Button>
             </Link>
           </div>
           <div className='rooms'>
@@ -143,6 +163,7 @@ export default function Lobby(){
           </div>
         </div>
       </div>
+      {show_modal? <CreateRoom on_click_cancel={off_modal}/> : null}
       <style jsx>{`
         .screen_wrapper{
           position: relative;

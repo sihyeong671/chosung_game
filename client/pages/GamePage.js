@@ -1,8 +1,8 @@
-import VerticalLayout from "../../components/VerticalLayout";
-import HorizontalLayout from "../../components/HorizontalLayout";
+import VerticalLayout from "../components/VerticalLayout";
+import HorizontalLayout from "../components/HorizontalLayout";
 import { io, Socket } from "socket.io-client";
 import React, { useState, useEffect } from 'react';
-import ProgressBar from "./ProgressBar.js";
+import ProgressBar from "../components/ProgressBar.js";
 import uuid from 'react-uuid'
 import { useRouter } from 'next/router'
 
