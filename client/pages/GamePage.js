@@ -8,17 +8,27 @@ import { useRouter } from 'next/router'
 import { connectSocket, sendMessage, ready } from '../utils/socket/socketManger'
 import { chainPropTypes } from "@mui/utils";
 import { socket } from "../utils/socket/socketManger";
-// const useStyles = makeStyles({
-//   problem_card: {
-//     backgroundColor: 'green',
-//   }
-// })
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import { makeStyles } from "@mui/styles";
+import {Color} from "../utils/color/colors";
+
+const useStyles = makeStyles({
+  problem_card: {
+    backgroundColor: 'green',
+  },
+  player: {
+    margin: 'auto',
+  },
+})
 
 //for test
 // connectSocket()
 
 export default function GamePage() {
-  //const classes = useStyles();
+  const classes = useStyles();
   
   //session storage에 저장된 user nickname 가져오기
   //const saveduser = sessionStorage.getItem('nickname')
@@ -198,7 +208,8 @@ export default function GamePage() {
                 <CardHeader title={problem}></CardHeader>
                 <CardContent></CardContent>
               </Card>*/}
-              <span className='question_text'>{problem}</span>
+              {/*<span className='question_text'>{problem}</span>*/}
+              <span className='question_text'>ㅊ ㄹ ㄱㄷ ㅎ ㄱㅇㅂㅌ</span>
             </div>
           </div>
           <div>
@@ -208,10 +219,20 @@ export default function GamePage() {
                   {
                       player.map(item => {
                         return(
-                          <div key={uuid()} className='player'>
-                            <div>{ item.name }</div>
-                            <div>{ item.score }</div>
-                          </div>
+                          <Card key={uuid()} className={classes.player}>
+                            <CardContent>
+                              <Typography variant='h6' component='div'>
+                                {item.name}
+                              </Typography>
+                              <Typography variant='body2'>
+                                {item.score}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                          //<div key={uuid()} className='player'>
+                          //  <div>{ item.name }</div>
+                          //  <div>{ item.score }</div>
+                          //</div>
                         )
                       })
                   }
@@ -260,39 +281,35 @@ export default function GamePage() {
       </div>
       <style jsx>{`
         .game_page{
-          height: 85vh;
+          height: 100%;
         }
         .progress_bar{
           height: 5vh;
           width: 100%;
           padding-top: 5px;
+          padding-bottom: 5px;
         }
         .question{
           display: table;
-          height: 20vh;
+          height: 30vh;
           margin: auto;
           text-align: center;
         }
         .question_text{
           display: table-cell;
           vertical-align: middle;
-          font-size: 80px;
+          font-size: 50px;
           font-weight: bold;
           padding-bottom: 10px;
         }
-        .player{
-          border: solid 1px;
-          margin: auto;
-          padding: 5px;
-          height: 10vh;
-        }
+        
         #chatting{
-          height: 35vh;
+          height: 40vh;
           overflow-y: scroll;
           overflow-x: hidden;
         }
         .my_message{
-          color: red;
+          color: ${Color.main_green};
         }
         .other_message{
           color: blue;
