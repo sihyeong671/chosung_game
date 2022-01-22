@@ -15,6 +15,9 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from "@mui/styles";
 import {Color} from "../utils/color/colors";
+import { my_room } from "../utils/data/roomdata";
+
+
 
 const useStyles = makeStyles({
   player: {
@@ -39,32 +42,32 @@ export default function GamePage() {
 
   let round_start = false
 
-  const player = [
-    {
-      name: '사람1', 
-      score: '점수1'
-    },
-    {
-      name: '사람2', 
-      score: '점수2'
-    },
-    {
-      name: '이름이길면어떻게될까?', 
-      score: '점수3'
-    },
-    {
-      name: '사람4', 
-      score: '점수4'
-    },
-    {
-      name: '사람5', 
-      score: '점수5'
-    },
-    {
-      name: '사람6', 
-      score: '점수6'
-    },
-  ]
+  // const player = [
+  //   {
+  //     name: '사람1', 
+  //     score: '점수1'
+  //   },
+  //   {
+  //     name: '사람2', 
+  //     score: '점수2'
+  //   },
+  //   {
+  //     name: '이름이길면어떻게될까?', 
+  //     score: '점수3'
+  //   },
+  //   {
+  //     name: '사람4', 
+  //     score: '점수4'
+  //   },
+  //   {
+  //     name: '사람5', 
+  //     score: '점수5'
+  //   },
+  //   {
+  //     name: '사람6', 
+  //     score: '점수6'
+  //   },
+  // ]
   // const [player, set_player] = useState([])
   // useEffect(() => {
   //   set_player([
@@ -220,7 +223,7 @@ export default function GamePage() {
               <div className='set_player'>
                 <HorizontalLayout>
                   {
-                      player.map(item => {
+                      my_room.pnames.map(item => {
                         return(
                           <Card key={uuid()} className={classes.player} elevation={5}>
                             <CardContent>
