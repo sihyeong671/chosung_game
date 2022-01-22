@@ -1,6 +1,7 @@
 // socket Handler
 import io from 'socket.io-client'
-import { updateDetailRoom, updateRoom } from '../roomdata/roomdata';
+import { updateDetailRoom, updateRoom } from '../data/roomdata';
+import { getRank } from '../data/userdata';
 
 export let socket;
 
@@ -14,10 +15,19 @@ export function connectSocket(){
       const nickname = `guest${socket.id}`
       sessionStorage.setItem('nickname', nickname)
     }
+    else{ // 카카오 로그인 한 경우
+      socket.emit('getmystatus', sessionStorage.getItem('nickname'))
+    }
+    // socket.emit('getranking');
   })
   // 연결해제
   socket.on('disconnect', ()=>{
     console.log('disconnect');
+  })
+
+  socket.on('yourranking', (data)=>{
+    console.log(data);
+    getRank(data);
   })
 
 } 

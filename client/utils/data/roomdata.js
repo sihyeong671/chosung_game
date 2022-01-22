@@ -34,6 +34,4 @@ export function updateDetailRoom(room_detail_info){
   room[is_ready]?.filter((name)=>{
     return is_ready.includes(name)
   })
-  
-
 }

@@ -1,6 +1,4 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import axios from 'axios'
+
 import uuid from 'react-uuid'
 import Button from '@mui/material/Button'
 import { useEffect, useState } from 'react'
@@ -8,11 +6,8 @@ import { useEffect, useState } from 'react'
 import UserCard from '../components/UserCard'
 import Room from '../components/Room'
 import Link from 'next/link'
-import io from 'socket.io-client'
-import { connectSocket, makeRoom, socket } from '../utils/socket/socketManger'
+import { connectSocket, socket } from '../utils/socket/socketManger'
 import CreateRoom from '../components/CreateRoom'
-import { useRouter } from 'next/router'
-import { updateDetailRoom, updateRoom } from '../utils/roomdata/roomdata'
 
 export default function Lobby(){
 
@@ -21,6 +16,7 @@ export default function Lobby(){
   const off_modal = () => {
     set_show_modal(false)
   }
+  
 
   useEffect(async ()=>{
     await connectSocket()
@@ -36,7 +32,7 @@ export default function Lobby(){
     }
     socket.emit('enter_room', info)
   }
-
+  // user, room import 해서 가져오기
   const user_infos = [
     {
       nick_name: '시형',
@@ -140,11 +136,7 @@ export default function Lobby(){
               }}variant="contained">방 만들기</Button>
             <Link href="/GamePage">
               <Button onClick={()=>{
-                
-                socket.emit('enter_room', {
-                  room_id: -1,
-                  name: sessionStorage.getItem('nickname'),
-                })
+                quickEnter()
               }} variant="contained">빠른 입장</Button>
             </Link>
           </div>
