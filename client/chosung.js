@@ -26,7 +26,7 @@ const sokdamSchema = new mongoose.Schema({
 	content:String,
 	meaning:String
   })
-const Sokdam = mongoose.model("sokdam", userSchema)
+const Sokdam = mongoose.model("sokdam", sokdamSchema)
 const {
   handle
 } = require('express/lib/router')
@@ -78,7 +78,7 @@ let rooms=[],roomSet=new Set();
 let weight=[70,55,45,30,20,10];
 /*
 room 속성
-rcnt,title,pnames,is_ready,readycnt,answer,hint
+rcnt,title,pnames,is_ready,readycnt,answer,hint,pw,isLocked
 winner,score, is_in_game
 socket 속성
 room_id,name
@@ -101,7 +101,7 @@ io.sockets.on('connection', (socket) => {
 		socket.emit(`update_room`,room_info);
 	}
 
-	socket.on('getmystatus',(data)=>{
+	socket.on('getmystatus',(data)=>{// required : name
 		name = data.name;
 		User.findOne({ 'name': name }, function (err, person) {
 			if (err) return handleError(err);
@@ -115,12 +115,31 @@ io.sockets.on('connection', (socket) => {
 		})
 	})
 	
-	socket.on('make_room', (data) => {
+	socket.on('getranking',(data)=>{
+    User.find({},(err,docs)=>{
+      if(err)return handleError(err);
+      const msg={
+        username:name,
+        stats:docs,
+        length:docs.length
+      }
+      io.emit('yourranking',msg);
+      console.log(`${docs.length} docs have been transferred`);
+    })
+  })
+
+	socket.on('exit_room',(data)=>{
+		handle_roomexit(room_id);
+	})
+
+	socket.on('make_room', (data) => {// required : (user)name, title, isLocked, pw
 		room_id=roomnumber;
 		name=data.user;
 		roomnumber++;
 		rooms[room_id]={
 			title:data.title,
+			pw:data.pw,
+			isLocked:data.isLocked,
 			rcnt:1,
 			pnames:[data.user],
 			is_ready:new Set(),
@@ -134,16 +153,15 @@ io.sockets.on('connection', (socket) => {
 		send_update_room(room_id);
 	})
 
-	socket.on('enter_room', (data) => {
+	socket.on('enter_room', (data) => { // required : room_id(quick match면 -1), pw(안잠겼으면 "")
 		room_id=data.room_id;
-		name=data.user;
 		console.log(`enter room : id ${room_id} , name : ${name}`);
 		if(room_id!=-1){
-			handle_enter(room_id);	
+			handle_enter(room_id,data.pw);	
 		}
 		else{// quick match
 			if(roomSet.size==0){
-				io.emit('full_join',{user:name});
+				socket.emit('full_join',{user:name});
 				return;
 			}
 			let roomArr=Array.from(roomSet);
@@ -153,11 +171,11 @@ io.sockets.on('connection', (socket) => {
 				return rooms[b].rcnt-rooms[a].rcnt;
 			})
 			if(rooms[roomArr[0]].rcnt>=l){
-				io.emit('full_join',{user:name});
+				socket.emit('full_join',{user:name});
 				return;
 			}
 			room_id=roomArr[0];
-			handle_enter(room_id);
+			handle_enter(room_id,data.pw);
 		}
 	})
 
@@ -176,13 +194,14 @@ io.sockets.on('connection', (socket) => {
 
 	socket.on('disconnect', () => {
 		console.log(`Socket disconnected : ${socket.id}`);
-
+		if(room_id==-1)return;
+		handle_roomexit(room_id);
 	})
 
-	socket.on('message',(data)=>{
+	socket.on('message',(data)=>{// required : name, content
 		if(room_id==-1||rooms[room_id].is_in_game==false){
 			//socket.to(room_id).emit('new_message',data);//그냥 echo
-			console.log(data.content);
+			console.log(data);
 			socket.emit('new_message',data);
 			return;
 		}
@@ -199,9 +218,28 @@ io.sockets.on('connection', (socket) => {
 		}
 	})
 
-	function handle_enter(room_id){
+	function handle_roomexit(room_id){
+		rooms[room_id].rcnt--;
+		pset=new Set(rooms[room_id].pnames);
+		pset.delete(name);
+		rooms[room_id].pnames=Array.from(pset);
+		rooms[room_id].is_ready.delete(name);
+		rooms[room_id].readycnt=rooms[room_id].is_ready.size;
+		socket.leave(room_id);
+		io.to(room_id).emit('leave',{user:name});
+		send_update_room(room_id);
+		if(rooms[room_id].rcnt<=0){
+			roomSet.delete(room_id);
+		}
+		room_id=-1;
+	}
+
+	function handle_enter(room_id,room_pw){
+		if(rooms[room_id].isLocked&&rooms[room_id].pw!=room_pw){
+			socket.emit('incorrect_pw',{});
+		}
 		if(rooms[room_id].rcnt>=l){
-			io.emit(`full`,{user:name});
+			socket.emit(`full`,{user:name});
 			return;
 		}
 		rooms[room_id].rcnt++;
@@ -221,6 +259,9 @@ io.sockets.on('connection', (socket) => {
 			round_timerId=setTimeout(handle_timeout,60000);
 			hint_timerId=setInterval(handle_hint,5000);
 			rooms[room_id].answer=sokdam.content;
+			rooms[room_id].meaning=sokdam.meaning;
+			rooms[room_id].winner=[];
+			console.log(`sokdam : ${sokdam.content}`);
 			rooms[room_id].hint=extract_chosung(sokdam.content);
 			io.to(room_id).emit('round_start',{
 				round_number:round,
@@ -246,10 +287,11 @@ io.sockets.on('connection', (socket) => {
 		rooms[room_id].round++;
 		io.to(room_id).emit('round_over',{
 			answer:rooms[room_id].answer,
-			score:Array.from(rooms[room_id].score, ([name, value]) => ({ name, value }) )
+			score:Array.from(rooms[room_id].score, ([name, value]) => ({ name, value }) ),
+			meaning:rooms[room_id].meaning
 		})
 		if(rooms[room_id].round<=2*rooms[room_id].rcnt){
-			setTimeout(handle_round_start,1000);
+			setTimeout(handle_round_start(room_id),1000);
 			return;
 		}
 		handle_gameover();
@@ -291,15 +333,15 @@ io.sockets.on('connection', (socket) => {
 		let cand=new Set();
 		console.log(`old hint : ${hstr}`);
 		for(i=0;i<hstr.length;i++){
-			if(!isHangul(hstr[i]))continue;
 			if(ans[i]==hstr[i])continue;
 			cand.add(i);
 		}
 		candarr=Array.from(cand);
+		if(cand.size<=1)return;
 		let rd=crypto.randomInt(cand.size);
 		let tmp="";
 		for(i=0;i<hstr.length;i++){
-			if(i==rd)tmp=tmp+ans[i];
+			if(i==candarr[rd])tmp=tmp+ans[i];
 			else tmp=tmp+hstr[i];
 		}
 		rooms[room_id].hint=tmp;
@@ -318,7 +360,8 @@ function send_update_room(room_id){
 		room_id:room_id,
 		room_title:room.title,
 		room_cnt:room.rcnt,
-		room_readycnt:room.readycnt
+		room_readycnt:room.readycnt,
+		room_isLocked:room.isLocked
 	}
 	io.emit(`update_room`,room_info);
 	const room_detail={
