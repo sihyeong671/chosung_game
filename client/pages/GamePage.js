@@ -21,8 +21,10 @@ export default function GamePage() {
   //const classes = useStyles();
   
   //session storage에 저장된 user nickname 가져오기
-  //const user = sessionStorage.getItem('nickname')
-  const user = "userTest"
+  //const saveduser = sessionStorage.getItem('nickname')
+  const saveduser = "userTest"
+
+  let round_start = false
 
   const player = [
     {
@@ -50,12 +52,41 @@ export default function GamePage() {
       score: '점수6'
     },
   ]
+  // const [player, set_player] = useState([])
+  // useEffect(() => {
+  //   set_player([
+  //     {
+  //       name: '사람1', 
+  //       score: '점수1'
+  //     },
+  //     {
+  //       name: '사람2', 
+  //       score: '점수2'
+  //     },
+  //     {
+  //       name: '사람3', 
+  //       score: '점수3'
+  //     },
+  //     {
+  //       name: '사람4', 
+  //       score: '점수4'
+  //     },
+  //     {
+  //       name: '사람5', 
+  //       score: '점수5'
+  //     },
+  //     {
+  //       name: '사람6', 
+  //       score: '점수6'
+  //     },
+  //   ])
+  // }, [player])
+  
+
   const [problem, set_problem] = useState('')
 
   const [message, set_message] = useState('')
   const [message_list, set_message_list] = useState([])
-
-  let round_start = false
 
    //socket listener
   useEffect(()=>{
@@ -88,7 +119,13 @@ export default function GamePage() {
       console.log('correct' + data.user)
     })
 
+    // socket.on('update_detail_room', (data) => {
+    //   set_player(data.pnams)
+    // })
+
   }, [round_start, problem])
+
+  
 
   //준비하기 버튼 눌렀을 때
   const handleready = () =>{
@@ -106,19 +143,11 @@ export default function GamePage() {
     chatting_view.scrollBy({top:chatting_view.scrollHeight})
   }, [message_list])
 
-  const renderChat = () => {
-    return message_list.map((msg) => (
-      <div key={uuid()}>
-        <span>{msg.message}</span>
-      </div>
-    ))
-  }
-
   //채팅 입력했을 때
   const handlepost = (e) => {
     e.preventDefault()
     const temp = {
-      user: user,
+      user: saveduser,
       message: message
     }
     sendMessage(temp)
@@ -148,8 +177,6 @@ export default function GamePage() {
         
         console.log(seconds)
       }, 1000);
-  
-      
   
       return () => clearInterval(set_timer)
     }
@@ -194,7 +221,26 @@ export default function GamePage() {
                 <VerticalLayout>
                   <div id='chatting'>
                     {
-                      renderChat()
+                      message_list.map((msg) => {
+
+                        if(msg.user == saveduser){
+                          console.log("me")
+                          return(
+                            <div key={uuid()} className='my_message'>
+                              <span>{msg.message}</span>
+                            </div>
+                          )
+                        }
+                        else{
+                          console.log("you")
+                          return(
+                            <div key={uuid()} className='other_message'>
+                              <span>{msg.message}</span>
+                            </div>
+                          )
+                        }
+                        
+                      })
                     }
                   </div>
                 </VerticalLayout>
@@ -245,7 +291,11 @@ export default function GamePage() {
           overflow-y: scroll;
           overflow-x: hidden;
         }
-        .chatting_bottom{
+        .my_message{
+          color: red;
+        }
+        .other_message{
+          color: blue;
         }
         #chatting_input{
           width: 95%;
