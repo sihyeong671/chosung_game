@@ -40,4 +40,13 @@ export function connectSocket(){
 //   socket.emit("enter_room", info)
 // }
 
+export function sendMessage(state){
+  console.log(state)
+  socket.emit('message', {content: state.message, user: state.user})
+}
+
+export function ready(){
+  socket.emit('ready')
+}
+
 

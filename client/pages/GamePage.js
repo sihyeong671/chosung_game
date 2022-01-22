@@ -1,53 +1,188 @@
 import VerticalLayout from "../components/VerticalLayout";
 import HorizontalLayout from "../components/HorizontalLayout";
 import { io, Socket } from "socket.io-client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ProgressBar from "../components/ProgressBar.js";
 import uuid from 'react-uuid'
 import { useRouter } from 'next/router'
-
-//import  Grid  from '@material-ui/core/Grid';
-//import {Typography} from '@material-ui/core';
-//import {Container} from '@material-ui/core';
-//import Card from '@mui/material/Card';
-//import CardHeader from '@mui/material/Card';
-//import CardContent from '@mui/material/Card';
-//import { makeStyles } from "@mui/styles";
-//import Box from '@mui/material/Box';
-//import { alpha } from '@mui/material/styles';
-
-//need to add server domain
-// const socket = io("http://192.249.18.147:80");
-
-  // socket.on("connect", () => {
-  //   console.log(socket.connected);
-  // });
-
+import { connectSocket, sendMessage, ready } from '../utils/socket/socketManger'
+import { chainPropTypes } from "@mui/utils";
+import { socket } from "../utils/socket/socketManger";
 // const useStyles = makeStyles({
 //   problem_card: {
 //     backgroundColor: 'green',
 //   }
 // })
 
+//for test
+// connectSocket()
+
 export default function GamePage() {
-
   //const classes = useStyles();
-  const router = useRouter()
-  const { GamePage } = router.query
+  
+  //session storage에 저장된 user nickname 가져오기
+  //const saveduser = sessionStorage.getItem('nickname')
+  const saveduser = "userTest"
 
-  //const answer = ['답1', '답1', '답1', '답1', '답1', '답1', '답1', '답1']
-  const player = ['사람1', '사람1', '사람1', '사람1', '사람1', '사람1']
-  const chatting = ['chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting', 'chatting']
-  const problem = "ㅁㅈㄹ ㅂㅇㅇㅇㅎ" 
+  let round_start = false
 
-  const [message, set_message] = useState([]);
+  const player = [
+    {
+      name: '사람1', 
+      score: '점수1'
+    },
+    {
+      name: '사람2', 
+      score: '점수2'
+    },
+    {
+      name: '사람3', 
+      score: '점수3'
+    },
+    {
+      name: '사람4', 
+      score: '점수4'
+    },
+    {
+      name: '사람5', 
+      score: '점수5'
+    },
+    {
+      name: '사람6', 
+      score: '점수6'
+    },
+  ]
+  // const [player, set_player] = useState([])
+  // useEffect(() => {
+  //   set_player([
+  //     {
+  //       name: '사람1', 
+  //       score: '점수1'
+  //     },
+  //     {
+  //       name: '사람2', 
+  //       score: '점수2'
+  //     },
+  //     {
+  //       name: '사람3', 
+  //       score: '점수3'
+  //     },
+  //     {
+  //       name: '사람4', 
+  //       score: '점수4'
+  //     },
+  //     {
+  //       name: '사람5', 
+  //       score: '점수5'
+  //     },
+  //     {
+  //       name: '사람6', 
+  //       score: '점수6'
+  //     },
+  //   ])
+  // }, [player])
+  
+
+  const [problem, set_problem] = useState('')
+
+  const [message, set_message] = useState('')
+  const [message_list, set_message_list] = useState([])
+
+   //socket listener
+  useEffect(()=>{
+    
+    socket.on('round_start', (data)=>{
+      round_start = true;
+      console.log('round_start: ' + round_start)
+      set_problem(data.hint)
+      console.log(problem)
+    })
+
+    socket.on('hint_update', (data)=>{
+      set_problem(data.hint)
+      console.log(problem)
+    })
+
+    socket.on('round_over', (data)=>{
+      console.log('round_over')
+    })
+
+    socket.on('new_message', (data) => {
+      console.log(data)
+    })
+    
+    socket.on('wrong', (data) => {
+      console.log('wrong' + data.user)
+    })
+
+    socket.on('correct', (data) => {
+      console.log('correct' + data.user)
+    })
+
+    // socket.on('update_detail_room', (data) => {
+    //   set_player(data.pnams)
+    // })
+
+  }, [round_start, problem])
 
   
-  const second = 10;
 
-  // const handlepost = (e) => {
-  //   socket.emit('new_message', {message})
-  // }
+  //준비하기 버튼 눌렀을 때
+  const handleready = () =>{
+    //for test
+    // socket.emit('make_room', {title: 'test', user: 'testuser'})
+    ready()
+    //클릭 비활성화
+    //ui 바뀌도록
+  }
+
+
+  //새로운 message 보낼 때 스크롤 위치
+  useEffect(() => {
+    const chatting_view = document.getElementById('chatting')
+    chatting_view.scrollBy({top:chatting_view.scrollHeight})
+  }, [message_list])
+
+  //채팅 입력했을 때
+  const handlepost = (e) => {
+    e.preventDefault()
+    const temp = {
+      user: saveduser,
+      message: message
+    }
+    sendMessage(temp)
+    console.log(message)
+    set_message_list([...message_list, temp])
+    console.log(message_list)
+    set_message('')
+  }
+
+  let max_second = 60
+  let set_timer
+
+  const [seconds, set_seconds] = useState(0)
+
+  //timer 숫자 설정
+  useEffect(() => {
+
+    if(round_start === true){
+      set_timer = setInterval(() => {
+        if(seconds === max_second){
+          set_seconds(0)
+          //handle round over
+        }
+        else{
+          set_seconds(seconds + 1)
+        }
+        
+        console.log(seconds)
+      }, 1000);
+  
+      return () => clearInterval(set_timer)
+    }
+    
+  }, [seconds])
+  
 
 
   return(         
@@ -55,7 +190,7 @@ export default function GamePage() {
       <div className='game_page' >
         <VerticalLayout>
           <div className='progress_bar'>
-            <ProgressBar second={second}/>
+            <ProgressBar second={seconds}/>
           </div>
           <div>
             <div className='question'>
@@ -68,39 +203,55 @@ export default function GamePage() {
           </div>
           <div>
             <VerticalLayout>
-              <div>
+              <div className='set_width'>
                 <HorizontalLayout>
                   {
                       player.map(item => {
                         return(
-                          <div key={uuid()} className='player'>{ item }</div>
+                          <div key={uuid()} className='player'>
+                            <div>{ item.name }</div>
+                            <div>{ item.score }</div>
+                          </div>
                         )
                       })
                   }
                 </HorizontalLayout>
-                
               </div>
               <div>
                 <VerticalLayout>
-                  <div className='chatting' >
-                    <ul>
-                      {
-                        chatting.map(item =>{
+                  <div id='chatting'>
+                    {
+                      message_list.map((msg) => {
+
+                        if(msg.user == saveduser){
+                          console.log("me")
                           return(
-                            <li key={uuid()}>{item}</li>
+                            <div key={uuid()} className='my_message'>
+                              <span>{msg.message}</span>
+                            </div>
                           )
-                        })
-                      }
-                    </ul>
+                        }
+                        else{
+                          console.log("you")
+                          return(
+                            <div key={uuid()} className='other_message'>
+                              <span>{msg.message}</span>
+                            </div>
+                          )
+                        }
+                        
+                      })
+                    }
                   </div>
-                  <HorizontalLayout className='chatting_bottom'>
-                    <input type='text' className='chatting_input' placeholder='채팅 입력창' onChange={(e) => set_message(e.target.value)}></input>
-                    <button className='send_btn'>보내기</button>
-                  </HorizontalLayout>
                 </VerticalLayout>
               </div>
+              <div>
+                  <form onSubmit={handlepost} className='chatting_bottom'>
+                    <input type='text' id='chatting_input' placeholder='채팅 입력창' onChange={e=>{set_message(e.target.value)}} value={message}></input>
+                  </form>
+              </div>
               <div className='ready'>
-                <button>준비하기</button>
+                <button onClick={handleready}>준비하기</button>
               </div>
             </VerticalLayout>
           </div>
@@ -109,13 +260,12 @@ export default function GamePage() {
       </div>
       <style jsx>{`
         .game_page{
-          height: 100vh;
+          height: 85vh;
         }
         .progress_bar{
           height: 5vh;
           width: 100%;
-          margin:auto;
-          margin-bottom:10px;
+          padding-top: 5px;
         }
         .question{
           display: table;
@@ -130,31 +280,25 @@ export default function GamePage() {
           font-weight: bold;
           padding-bottom: 10px;
         }
-        .answer{
-          border: solid 1px;
-          margin: auto;
-          padding: 5px;
-          height: 5vh;
-        }
         .player{
           border: solid 1px;
           margin: auto;
           padding: 5px;
           height: 10vh;
         }
-        .chatting{
+        #chatting{
           height: 35vh;
-          overflow: scroll;
+          overflow-y: scroll;
+          overflow-x: hidden;
         }
-        .chatting_bottom{
-          height: 10vh;
+        .my_message{
+          color: red;
         }
-        .chatting_input{
+        .other_message{
+          color: blue;
+        }
+        #chatting_input{
           width: 95%;
-          margin: auto;
-        }
-        .send_btn{
-          width: 5%;
           margin: auto;
         }
         .ready{

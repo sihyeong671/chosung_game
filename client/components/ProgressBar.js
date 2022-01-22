@@ -13,12 +13,11 @@ const ProgressBar = (props) => {
     <>
       <div className='container'>
         <div className='filler' style={secondfiller}>
-          <span className='label'>{`${second}초`}</span>
+          <span className='label'>{`${second}`}</span>
         </div>
       </div>
       <style jsx>{`
         .container{
-          height: 100%;
           width: 100%;
           background-color: #E0E0DE;
           border-radius: 50px;
@@ -33,6 +32,7 @@ const ProgressBar = (props) => {
         .label{
           padding: 5px;
           color: white;
+          font-size = 10px;
           font-weight: bold;
         }
       `}
