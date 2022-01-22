@@ -17,3 +17,4 @@ export const Color = {
   yellow_7: '#999900',
   yellow_8: '#666600'
 }
+
