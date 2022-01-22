@@ -1,5 +1,5 @@
-const rooms = new Map()
-const my_room = new Map()
+const rooms = new Map() // 로비에서 사용할 전체 방 정보
+const my_room = new Map() // 내가 들어간 방의 세부 정보
 
 export function updateRoom(room_info){
   const room_id = room_info.room_id
@@ -19,7 +19,6 @@ export function updateRoom(room_info){
   else if(rooms.get(room_id) && room_cnt <= 0){
     rooms.delete(room_id)
   }
-
 }
 
 export function updateDetailRoom(room_detail_info){
