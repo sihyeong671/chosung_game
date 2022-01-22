@@ -8,6 +8,8 @@ import Room from '../components/Room'
 import Link from 'next/link'
 import { connectSocket, socket } from '../utils/socket/socketManger'
 import CreateRoom from '../components/CreateRoom'
+import { user_infos } from '../utils/data/userdata'
+import { rooms } from '../utils/data/roomdata'
 
 export default function Lobby(){
 
@@ -33,83 +35,23 @@ export default function Lobby(){
     socket.emit('enter_room', info)
   }
   // user, room import 해서 가져오기
-  const user_infos = [
-    {
-      nick_name: '시형',
-      score: 100
-    },
-    {
-      nick_name: '병규',
-      score: 30
-    },
-    {
-      nick_name: '민서',
-      score: 22
-    },
-    {
-      nick_name: '시형',
-      score: 100
-    },
-    {
-      nick_name: '병규',
-      score: 30
-    },
-    {
-      nick_name: '민서',
-      score: 22
-    },
-    {
-      nick_name: '시형',
-      score: 100
-    },
-    {
-      nick_name: '병규',
-      score: 30
-    },
-    {
-      nick_name: '민서',
-      score: 22
-    },
-    {
-      nick_name: '시형',
-      score: 100
-    },
-    {
-      nick_name: '병규',
-      score: 30
-    },
-    {
-      nick_name: '민서',
-      score: 22
-    },
-  ]
-
+  
   const sorted_infos = user_infos.sort((a, b) => {
     return b.score - a.score
   })
 
-  const rooms = [
-    {
-      room_id: 'ABCD12345',
-      room_title: "test1",
-      room_cnt: 2,
-      room_readycnt: 0,
-    },
-    {
-      room_id: 'ABCD12345XX',
-      room_title: "test2",
-      room_cnt: 1,
-      room_readycnt: 0,
-    },
-    {
-      room_id: 'XXABCD12345',
-      room_title: "test3",
-      room_cnt: 5,
-      room_readycnt: 2,
-    },
-
-  ]
-
+  const room_list = []
+  rooms?.forEach((v, k)=>{
+    room_list.push(
+      <Room
+        key={uuid()}
+        room_id={k}
+        room_title={v.title}
+        room_cnt={v.rcnt}
+        room_readycnt={v.readycnt}
+      />
+    )
+  }) 
   return(
     <>
       <div className='screen_wrapper'>
@@ -141,17 +83,7 @@ export default function Lobby(){
             </Link>
           </div>
           <div className='rooms'>
-            {rooms.map((room)=>{
-              return(
-                <Room
-                  key={uuid()}
-                  room_id={room.room_id}
-                  room_title={room.room_title}
-                  room_cnt={room.room_cnt}
-                  room_readycnt={room.room_readycnt}
-                />
-              )
-            })}
+            {room_list}
           </div>
         </div>
       </div>

@@ -1,5 +1,21 @@
-const rooms = new Map() // 로비에서 사용할 전체 방 정보
-const my_room = new Map() // 내가 들어간 방의 세부 정보
+export const rooms = new Map() // 로비에서 사용할 전체 방 정보
+export const my_room = {} // 내가 들어간 방의 세부 정보
+
+rooms.set('ABCDE123',{
+  title: 'test',
+  rcnt: 3,
+  readycnt: 3
+})
+rooms.set('ABCDE1234',{
+  title: 'test1',
+  rcnt: 3,
+  readycnt: 1
+})
+rooms.set('ABCDE1235',{
+  title: 'test2',
+  rcnt: 4,
+  readycnt: 0
+})
 
 export function updateRoom(room_info){
   const room_id = room_info.room_id
@@ -26,11 +42,7 @@ export function updateDetailRoom(room_detail_info){
   const room_pnames = room_detail_info.room_pnames
   const is_ready = room_detail_info.is_ready // array
   
-  const room = rooms.get(room_id)
-  room[room_pnames]?.filter((name)=>{
-    return room_pnames.includes(name)
-  })
-  room[is_ready]?.filter((name)=>{
-    return is_ready.includes(name)
-  })
+  my_room.id = room_id;
+  my_room.names = room_pnames;
+  my_room.ready_names = is_ready;
 }
