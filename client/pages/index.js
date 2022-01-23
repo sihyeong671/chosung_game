@@ -4,13 +4,13 @@ import Image from 'next/image'
 import Button from '@mui/material/Button'
 import Link from 'next/link'
 import {BACKGROUND_IMG} from '../public/img/background_img.jpg'
-
+import { Color } from '../utils/color/colors'
 export default function Home() {
   
   return(
     <div className="main_screen">
       <div className='photo_wrapper'>
-        <div className='photo'>사진</div>
+        <div className='photo'></div>
       </div>
       <div className='login_wrapper'>
         <div>

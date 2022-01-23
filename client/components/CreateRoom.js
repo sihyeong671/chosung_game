@@ -70,7 +70,7 @@ export default function CreateRoom(props){
           position: absolute;
           top: 50%;
           left: 50%;
-          width: 50vw;
+          width: 20vw;
           height: 30vh;
           
         }

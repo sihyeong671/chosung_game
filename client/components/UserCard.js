@@ -1,3 +1,5 @@
+import { Color } from "../utils/color/colors"
+
 export default function UserCard({idx, user_info}){
   const nick_name = user_info.nick_name 
   const score = user_info.score
@@ -16,10 +18,10 @@ export default function UserCard({idx, user_info}){
       </div>
       <style jsx>{`
         .card{
-          display: flex;
-          align-items: flex-start;
-          background-color: blue;
+          display:flex;
+          background-color: ${Color.green_1};
           margin-bottom: 1rem;
+          border-radius: 20px;
         }
         .rank{
           margin: 1rem;

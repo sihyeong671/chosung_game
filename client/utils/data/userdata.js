@@ -1,3 +1,4 @@
+import { socket } from "../socket/socketManger"
 
 
 export const user_infos = [
@@ -52,7 +53,6 @@ export const user_infos = [
 ]
 
 
-
 export function getRank(data){
-
+  console.log(data);
 }
