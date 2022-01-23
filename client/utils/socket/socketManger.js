@@ -25,6 +25,19 @@ export function connectSocket(){
     console.log('disconnect');
   })
 
+  // 방 업데이트
+  socket.on('update_room', (data)=>{
+    console.log('update-room');
+    console.log(data);
+    updateRoom(data);
+  })
+
+  socket.on('update_detail_room', (data)=>{
+    console.log('update-detail-room');
+    console.log(data);
+    updateDetailRoom(data);
+  })
+
   socket.on('yourranking', (data)=>{
     console.log(data);
     getRank(data);
