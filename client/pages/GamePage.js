@@ -16,6 +16,7 @@ import Typography from '@mui/material/Typography';
 import { makeStyles } from "@mui/styles";
 import {Color} from "../utils/color/colors";
 import { my_room } from "../utils/data/roomdata";
+import { ToastContainer, toast } from 'react-toastify';
 
 
 
@@ -48,7 +49,8 @@ export default function GamePage() {
   const [message, set_message] = useState('')
   const [message_list, set_message_list] = useState([])
 
-  let correct = false
+  // let correct = false
+  let correct = true
    //socket listener
   useEffect(()=>{
     
@@ -82,10 +84,10 @@ export default function GamePage() {
       console.log('correct' + data.user)
       correct = true
       console.log('correct' + correct)
+      toast("정답입니다!")
     })
 
   }, [round_start, problem])
-
   
   let ready_state = false
   let btn_background = Color.green_6
@@ -155,8 +157,6 @@ export default function GamePage() {
     }
     
   }, [seconds])
-  
-
 
   return(         
     <>
@@ -249,7 +249,6 @@ export default function GamePage() {
             </VerticalLayout>
           </div>
         </VerticalLayout>
-        
       </div>
       <style jsx>{`
         .game_page{
