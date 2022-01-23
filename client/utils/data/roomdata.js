@@ -22,14 +22,3 @@ export function updateRoom(room_info){
     rooms.delete(room_id)
   }
 }
-
-export function updateDetailRoom(room_detail_info){
-  const room_id = room_detail_info.room_id
-  const room_pnames = room_detail_info.pnames
-  const is_ready = room_detail_info.is_ready // array
-  
-  my_room.id = room_id;
-  my_room.names = room_pnames;
-  my_room.ready_names = is_ready;
-  console.log(my_room);
-}

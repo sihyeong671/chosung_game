@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ProgressBar from "../components/ProgressBar.js";
 import uuid from 'react-uuid'
 import { useRouter } from 'next/router'
-import { connectSocket, sendMessage } from '../utils/socket/socketManger'
+import { connectSocket, getRoomData, sendMessage } from '../utils/socket/socketManger'
 import { chainPropTypes } from "@mui/utils";
 import { socket } from "../utils/socket/socketManger";
 import Box from '@mui/material/Box';
@@ -15,8 +15,8 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from "@mui/styles";
 import {Color} from "../utils/color/colors";
-import { my_room } from "../utils/data/roomdata";
 import { ToastContainer, toast } from 'react-toastify';
+import Room from "../components/Room";
 
 
 
@@ -31,29 +31,30 @@ const useStyles = makeStyles({
   }
 })
 
-//for test
-// connectSocket()
 
 export default function GamePage() {
-  const classes = useStyles();
-  
-  //session storage에 저장된 user nickname 가져오기
-  const saveduser = sessionStorage.getItem('nickname')
-  //const saveduser = "userTest"
 
-  const [round_start, set_round_start]= useState(false)
-  
+  console.log('GamePage 렌더링');
 
-  const [problem, set_problem] = useState('')
-
-  const [message, set_message] = useState('')
-  const [message_list, set_message_list] = useState([])
-
-  // let correct = false
   let correct = true
-   //socket listener
-  useEffect(()=>{
-    console.log(my_room);
+  let max_second = 60
+  let set_timer
+
+  const classes = useStyles();
+  const saveduser = sessionStorage.getItem('nickname')
+
+  const [my_room, set_my_room] = useState({}) 
+  const [round_start, set_round_start]= useState(false) //
+  const [problem, set_problem] = useState('') //
+  const [message, set_message] = useState('') //
+  const [message_list, set_message_list] = useState([]) //
+  const [ready_state, set_ready_state] = useState(false)
+  const [btn_background, set_btn_background] = useState(Color.green_6)
+  const [seconds, set_seconds] = useState(0)
+
+
+
+  useEffect(()=>{ // sokcet listener
     
     socket.on('round_start', (data)=>{
       set_round_start(true)
@@ -90,65 +91,16 @@ export default function GamePage() {
       toast("정답입니다!")
     })
 
+    
+
   }, [round_start, problem, message_list])
-  
-  const [ready_state, set_ready_state] = useState(false)
-  const [btn_background, set_btn_background] = useState(Color.green_6)
-  //준비하기 버튼 눌렀을 때
 
-  
-  const ready = () => {
-    socket.emit('ready')
-  }
-
-  const handleready = () =>{
-    //for test
-    // socket.emit('make_room', {title: 'test', user: 'testuser'})
-    if(ready_state === false){
-      set_ready_state(true)
-      ready()
-      console.log("ready: " + ready_state)
-      set_btn_background(Color.yellow_6)
-    }
-    else{
-      set_ready_state(false)
-      console.log("ready: " + ready_state)
-      set_btn_background(Color.green_6)
-      //서버쪽에 보내서 처리 필요
-    }
-    //console.log("ready: " + ready_state)
-    //ui 바뀌도록
-  }
-
-
-  //새로운 message 보낼 때 스크롤 위치
-  useEffect(() => {
+  useEffect(() => { //새로운 message 보낼 때 스크롤 위치
     const chatting_view = document.getElementById('chatting')
     chatting_view.scrollBy({top:chatting_view.scrollHeight})
   }, [message_list])
-
-  //채팅 입력했을 때
-  const handlepost = (e) => {
-    e.preventDefault()
-    const temp = {
-      user: saveduser,
-      content: message
-    }
-    sendMessage(temp)
-    console.log(message)
-    set_message_list([...message_list, temp])
-    console.log(message_list)
-    set_message('')
-  }
-
-  let max_second = 60
-  let set_timer
-
-  const [seconds, set_seconds] = useState(0)
-
-  //timer 숫자 설정
-  useEffect(() => {
-
+  
+  useEffect(() => { // 라운드 시작
     if(round_start === true){
       set_timer = setInterval(() => {
         if(seconds === max_second){
@@ -167,6 +119,51 @@ export default function GamePage() {
     
   }, [seconds])
 
+  const handleready = () =>{ // 준비하기 버튼 클릭
+    //for test
+    // socket.emit('make_room', {title: 'test', user: 'testuser'})
+    if(ready_state === false){
+      set_ready_state(true)
+      socket.emit('ready')
+      console.log("ready: " + ready_state)
+      set_btn_background(Color.yellow_6)
+    }
+    else{
+      set_ready_state(false)
+      console.log("ready: " + ready_state)
+      set_btn_background(Color.green_6)
+      //서버쪽에 보내서 처리 필요
+    }
+    //console.log("ready: " + ready_state)
+    //ui 바뀌도록
+  }
+  
+  const handlepost = (e) => { //채팅 입력했을 때
+    e.preventDefault()
+    const temp = {
+      user: saveduser,
+      content: message
+    }
+    sendMessage(temp)
+    console.log(message)
+    set_message_list([...message_list, temp])
+    console.log(message_list)
+    set_message('')
+  }
+
+  const updateDetailRoom = (room_detail_info) => {
+    // const room_id = room_detail_info.room_id
+    // const room_pnames = room_detail_info.pnames
+    // const is_ready = room_detail_info.is_ready // array
+    
+    // const temp = {}
+    // temp.id = room_id;
+    // temp.names = room_pnames;
+    // temp.ready_names = is_ready;
+    // set_my_room(temp);
+    console.log(room_detail_info);
+  }
+  
   return(         
     <>
       <div className='game_page' >
