@@ -13,7 +13,8 @@ export function updateRoom(room_info){
     rooms.set(room_id, {
       title: room_title,
       rcnt: room_cnt,
-      readycnt: room_readycnt
+      readycnt: room_readycnt,
+      is_lock: room_is_lock
     })
     console.log(rooms);
   }

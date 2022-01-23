@@ -40,11 +40,13 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
         </div>
         <div className="button">
           
-            <button className="enter_btn"
-              onClick={()=>{enterRoom(room_id)}}
-            >
+            <button 
+              className="enter_btn"
+              onClick={()=>{
+                sessionStorage.setItem('room_id', room_id)
+                enterRoom(room_id)
+              }}>
               <Link href='/GamePage'>참가하기</Link>
-              
           </button>
         </div>
       </div>

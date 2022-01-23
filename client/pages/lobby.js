@@ -61,7 +61,6 @@ export default function Lobby(){
 
   const roomUpdate = () => {
     const temp = []
-    let check = false;
     rooms?.forEach((v, k)=>{
       temp.push(
         <Room
@@ -85,7 +84,7 @@ export default function Lobby(){
     })
   },[])
 
-  useEffect(()=>{
+  useEffect(()=>{ // 방정보 room_list에 컴포넌트로 만들어서 담기
     roomUpdate()
     const interval = setInterval(roomUpdate, 1000)
     return (()=>{clearInterval(interval)})
@@ -102,8 +101,6 @@ export default function Lobby(){
   const sorted_infos = user_infos.sort((a, b) => {
     return b.score - a.score
   })
-
-    
 
   return(
     <>
