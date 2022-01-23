@@ -11,7 +11,9 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
       room_id: room_id,
       user: sessionStorage.getItem('nickname'),
     }
+    console.log(info)
     socket.emit('enter_room', info)
+
   }
 
   return(
@@ -36,11 +38,13 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
           </div>
         </div>
         <div className="button">
-          <Link href='/GamePage'>
+          
             <button
               onClick={()=>{enterRoom(room_id)}}
-            >참가하기</button>
-          </Link>
+            >
+              <Link href='/GamePage'>참가하기</Link>
+              
+          </button>
         </div>
       </div>
       <style jsx>{`

@@ -23,8 +23,10 @@ export default function CreateRoom(props){
     const info = {
       title: room_name,
       user: sessionStorage.getItem('nickname'),
-      lock: lock_number
+      pw: lock_number,
+      is_lock: lock
     }
+    console.log(info.is_lock)
     socket.emit('make_room', info)
   }
 

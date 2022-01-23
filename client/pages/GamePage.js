@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ProgressBar from "../components/ProgressBar.js";
 import uuid from 'react-uuid'
 import { useRouter } from 'next/router'
-import { connectSocket, sendMessage, ready } from '../utils/socket/socketManger'
+import { connectSocket, sendMessage } from '../utils/socket/socketManger'
 import { chainPropTypes } from "@mui/utils";
 import { socket } from "../utils/socket/socketManger";
 import Box from '@mui/material/Box';
@@ -38,10 +38,10 @@ export default function GamePage() {
   const classes = useStyles();
   
   //session storage에 저장된 user nickname 가져오기
-  //const saveduser = sessionStorage.getItem('nickname')
-  const saveduser = "userTest"
+  const saveduser = sessionStorage.getItem('nickname')
+  //const saveduser = "userTest"
 
-  let round_start = false
+  const [round_start, set_round_start]= useState(false)
   
 
   const [problem, set_problem] = useState('')
@@ -53,9 +53,10 @@ export default function GamePage() {
   let correct = true
    //socket listener
   useEffect(()=>{
+    console.log(my_room);
     
     socket.on('round_start', (data)=>{
-      round_start = true;
+      set_round_start(true)
       console.log('round_start: ' + round_start)
       set_problem(data.hint)
       console.log(problem)
@@ -72,6 +73,8 @@ export default function GamePage() {
 
     socket.on('new_message', (data) => {
       console.log(data)
+      set_message_list([...message_list, data])
+      console.log(message_list)
     })
     
     socket.on('wrong', (data) => {
@@ -87,24 +90,30 @@ export default function GamePage() {
       toast("정답입니다!")
     })
 
-  }, [round_start, problem])
+  }, [round_start, problem, message_list])
   
-  let ready_state = false
-  let btn_background = Color.green_6
+  const [ready_state, set_ready_state] = useState(false)
+  const [btn_background, set_btn_background] = useState(Color.green_6)
   //준비하기 버튼 눌렀을 때
+
+  
+  const ready = () => {
+    socket.emit('ready')
+  }
+
   const handleready = () =>{
     //for test
     // socket.emit('make_room', {title: 'test', user: 'testuser'})
     if(ready_state === false){
-      ready_state = true
+      set_ready_state(true)
       ready()
       console.log("ready: " + ready_state)
-      //btn_background = Color.yellow_6
+      set_btn_background(Color.yellow_6)
     }
     else{
-      ready_state = false
+      set_ready_state(false)
       console.log("ready: " + ready_state)
-      //btn_background = Color.green_6
+      set_btn_background(Color.green_6)
       //서버쪽에 보내서 처리 필요
     }
     //console.log("ready: " + ready_state)
@@ -123,7 +132,7 @@ export default function GamePage() {
     e.preventDefault()
     const temp = {
       user: saveduser,
-      message: message
+      content: message
     }
     sendMessage(temp)
     console.log(message)
@@ -176,12 +185,12 @@ export default function GamePage() {
               <div className='set_player'>
                 <HorizontalLayout>
                   {
-                      my_room.pnames.map(item => {
-                        let name;
-                        if(item.name.length > 7){
-                          name = item.name.slice(0, 6) + '...'
+                      my_room.names?.map(name => {
+                        let show_name;
+                        if(name.length > 7){
+                          show_name = name.slice(0, 6) + '...'
                         }else{
-                          name = item.name;
+                          show_name = name;
                         }
                         return(
                           <Card key={uuid()} className={classes.player} elevation={5}>
@@ -193,10 +202,10 @@ export default function GamePage() {
                                   image='/img/test1.png' className={classes.player_img}/>
                                 <div>
                                 <Typography variant='h6' component='div'>
-                                  {name}
+                                  {show_name}
                                 </Typography>
                                 <Typography variant='body2'>
-                                  {item.score}
+                                  {/* {item.score} */}
                                 </Typography>
                                 </div>
                               </HorizontalLayout>
@@ -211,21 +220,21 @@ export default function GamePage() {
                 <VerticalLayout>
                   <div id='chatting'>
                     {
-                      message_list.map((msg) => {
+                      message_list?.map((msg) => {
 
-                        if(msg.user == saveduser){
+                        if(msg.user === saveduser){
                           console.log("me")
                           return(
                             <div>
-                              <span key={uuid()} className='my_message'>{msg.message}</span>
+                              <span key={uuid()} className='my_message'>{msg.content}</span>
                             </div>
                           )
                         }
                         else{
                           console.log("you")
                           return(
-                            <div key={uuid()} className='other_message'>
-                              <span>{msg.message}</span>
+                            <div>
+                              <span key={uuid()} className='other_message'>{msg.content}</span>
                             </div>
                           )
                         }
@@ -242,7 +251,7 @@ export default function GamePage() {
               </div>
               <div className='ready'>
                 <HorizontalLayout>
-                  <button className='ready_btn' style={{backgroundColor: btn_background}} onClick={handleready}>준비하기</button>
+                  <button className='ready_btn' onClick={()=>{handleready()}}>준비하기</button>
                   <button className='out_btn'>방 나가기</button>
                 </HorizontalLayout>
               </div>
@@ -311,7 +320,7 @@ export default function GamePage() {
           margin: 10px;
         }
         .other_message{
-          float: right;
+          float: left;
           background-color: white;
           padding: 10px;
           margin: 10px;
@@ -334,13 +343,17 @@ export default function GamePage() {
           margin:auto;
         }
         .ready_btn{
-          //background-color: ${btn_background};
+          background-color: ${btn_background};
           border: none;
           padding: 5px 16px;
           color: white;
           font-size: 20px;
           font-weight: bold;
           margin-right: 10px;
+        }
+        .ready_btn:hover{
+          cursor: pointer;
+          background-color: ${Color.green_7} 
         }
         .out_btn{
           background-color: ${Color.green_6};

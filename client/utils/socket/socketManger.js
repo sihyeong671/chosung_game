@@ -36,6 +36,7 @@ export function connectSocket(){
     console.log('update-detail-room');
     console.log(data);
     updateDetailRoom(data);
+
   })
 
   socket.on('yourranking', (data)=>{
@@ -55,11 +56,8 @@ export function connectSocket(){
 
 export function sendMessage(state){
   console.log(state)
-  socket.emit('message', {content: state.message, user: state.user})
+  socket.emit('message', {content: state.content, user: state.user})
 }
 
-export function ready(){
-  socket.emit('ready')
-}
 
 
