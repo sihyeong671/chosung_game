@@ -4,6 +4,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Link from "next/link";
+import { Color } from "../utils/color/colors";
 
 export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock}){
   const enterRoom = (room_id) => {
@@ -39,7 +40,7 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
         </div>
         <div className="button">
           
-            <button
+            <button className="enter_btn"
               onClick={()=>{enterRoom(room_id)}}
             >
               <Link href='/GamePage'>참가하기</Link>
@@ -77,6 +78,16 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
         .button{
           display: flex;
           justify-content: center; 
+        }
+        .enter_btn{
+          background-color: ${Color.green_3};
+          border: none;
+          padding: 3px 8px;
+          font-size: 16px;
+          font-weight: bold;
+        }
+        .enter_btn:hover{
+          background-color: ${Color.green_6};
         }
       `}</style>
     </>

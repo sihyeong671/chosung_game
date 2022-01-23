@@ -48,13 +48,18 @@ export default function GamePage() {
 
   const [message, set_message] = useState('')
   const [message_list, set_message_list] = useState([])
-
+  const [prelen, set_prelen] = useState(0)
   // let correct = false
   let correct = true
    //socket listener
   useEffect(()=>{
+    console.log("run useeEfffect GamePage");
+    console.log(my_room.names.length);
     console.log(my_room);
     
+    if(prelen !== my_room.names.length){
+      set_prelen(my_room.names.length);
+    }
     socket.on('round_start', (data)=>{
       set_round_start(true)
       console.log('round_start: ' + round_start)
@@ -94,9 +99,8 @@ export default function GamePage() {
   
   const [ready_state, set_ready_state] = useState(false)
   const [btn_background, set_btn_background] = useState(Color.green_6)
-  //준비하기 버튼 눌렀을 때
-
   
+  //준비하기 버튼 눌렀을 때
   const ready = () => {
     socket.emit('ready')
   }
@@ -221,7 +225,6 @@ export default function GamePage() {
                   <div id='chatting'>
                     {
                       message_list?.map((msg) => {
-
                         if(msg.user === saveduser){
                           console.log("me")
                           return(

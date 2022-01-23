@@ -16,18 +16,20 @@ export default function Header(){
       <style jsx>
         {`
           .header{
-            background-color: ${Color.green_1};
+            background-color: ${Color.green_6};
             display: flex;
             justify-content: space-between;
             align-items: center; 
             height: 10vh;
             margin-bottom: 1rem;
             box-shadow: 0px 15px 10px -15px #111;
-            border-radius: 20px;
+            //border-radius: 20px;
           }
           .title{
             margin-left: 1rem;
-            color: ${Color.green_5}
+            //color: white;
+            font-weight: bold;
+            font-size: 20px;
           }
           .menu{
             margin-right: 1rem;

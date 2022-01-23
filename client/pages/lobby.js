@@ -14,6 +14,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { Color } from '../utils/color/colors'
+import VerticalLayout from '../components/VerticalLayout'
+import HorizontalLayout from '../components/HorizontalLayout'
 
 
 function NextArrow(props){
@@ -85,7 +87,7 @@ export default function Lobby(){
 
   useEffect(()=>{
     roomUpdate()
-    const interval = setInterval(roomUpdate, 3000)
+    const interval = setInterval(roomUpdate, 1000)
     return (()=>{clearInterval(interval)})
   },[])
 
@@ -119,18 +121,32 @@ export default function Lobby(){
             })}
           </div>
           <div className='my_rank'>
-            내 랭킹
+            <VerticalLayout>
+              <div>
+                내 랭킹
+              </div>
+              <div>
+                <HorizontalLayout>
+                  <div className='my_place'>
+                    n위
+                  </div>
+                  <div className='my_score'>
+                    n점
+                  </div>
+                </HorizontalLayout>
+              </div>
+            </VerticalLayout>
           </div>
         </div>
         <div className='rooms_wrapper'>
           <div className='button'>
-              <Button onClick={()=>{
+              <button className='make_room_btn' onClick={()=>{
                 set_show_modal(true)
-              }}variant="contained">방 만들기</Button>
+              }}variant="contained">방 만들기</button>
             <Link href="/GamePage">
-              <Button onClick={()=>{
+              <button className='quick_enter_btn' onClick={()=>{
                 quickEnter()
-              }} variant="contained">빠른 입장</Button>
+              }} variant="contained">빠른 입장</button>
             </Link>
           </div>
           <div className='slider'>
@@ -141,7 +157,7 @@ export default function Lobby(){
         </div>
           
       </div>
-      {show_modal? <CreateRoom on_click_cancel={off_modal}/> : null}
+      {show_modal? <CreateRoom className='modal' on_click_cancel={off_modal}/> : null}
       <style jsx>{`
         .screen_wrapper{
           display: flex;
@@ -158,7 +174,34 @@ export default function Lobby(){
         }
         .ranking{
           height: 60vh;
-          overflow: scroll;
+          width: 30vw;
+          overflow-y: scroll;
+          overflow-x: hidden;
+        }
+        .ranking::-webkit-scrollbar{
+          width: 5px;
+        }
+        .ranking::-webkit-scrollbar-thumb{
+          background-color: ${Color.green_8};
+          border-radius: 10px;
+        }
+        .ranking::-webkit-scrollbar-track{
+          background-color: ${Color.green_3};
+          boreder-radius: 10px;
+        }
+        .my_rank{
+          border: 1px solid;
+          padding: 10px;
+          margin: 16px;
+          font-weight: bold;
+        }
+        .my_place{
+          margin-right: 10px;
+          margin-top: 10px;
+        }
+        .my_score{
+          margin-left: 10px;
+          margin-top: 10px;
         }
         .rooms_wrapper{
           flex-grow: 1;
@@ -167,13 +210,45 @@ export default function Lobby(){
         }
         .button{
           display: flex;
-          justify-content: center; 
+          justify-content: center;
+        }
+        .make_room_btn{
+          background-color: ${Color.green_6};
+          border: none;
+          padding: 5px 16px;
+          color: white;
+          font-size: 20px;
+          font-weight: bold;
+          margin-right: 10px;
+        }
+        .make_room_btn:hover{
+          cursor: pointer;
+          background-color: ${Color.green_7} 
+        }
+        .quick_enter_btn{
+          background-color: ${Color.green_6};
+          border: none;
+          padding: 5px 16px;
+          color: white;
+          font-size: 20px;
+          font-weight: bold;
+          margin-right: 10px;
+        }
+        .quick_enter_btn:hover{
+          cursor: pointer;
+          background-color: ${Color.green_7};
         }
         .make_room{
           background-color: black; 
         }
         .quick_enter{
           margin-left: 1rem;
+        }
+        .slider{
+          width: 70vw;
+        }
+        .modal{
+          background:-color: ${Color.green_2};
         }
       `}</style>
     </>
