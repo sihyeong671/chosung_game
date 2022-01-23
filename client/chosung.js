@@ -90,16 +90,19 @@ io.sockets.on('connection', (socket) => {
 	let name;
 	let round_timerId=-1,hint_timerId=-1;
 	
-	for(let rid of roomSet){// 처음 들어왔을때 모든 방 정보를 그 소켓에만 보내기
-		let room=rooms[rid];
-		const room_info={
-			room_id:rid,
-			room_title:room.title,
-			room_cnt:room.rcnt,
-			room_readycnt:room.readycnt
+	socket.on('get_room_list',(data)=>{// required : name
+		name = data.name;
+		for(let rid of roomSet){// 처음 들어왔을때 모든 방 정보를 그 소켓에만 보내기
+			let room=rooms[rid];
+			const room_info={
+				room_id:rid,
+				room_title:room.title,
+				room_cnt:room.rcnt,
+				room_readycnt:room.readycnt
+			}
+			socket.emit(`update_room`,room_info);
 		}
-		socket.emit(`update_room`,room_info);
-	}
+	})
 
 	socket.on('getmystatus',(data)=>{// required : name
 		name = data.name;
