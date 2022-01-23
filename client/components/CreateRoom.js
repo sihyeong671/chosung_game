@@ -28,7 +28,7 @@ export default function CreateRoom(props){
       pw: lock_number,
       is_lock: lock
     }
-    console.log(info.is_lock)
+    console.log(info.is_lock)           
     socket.emit('make_room', info)
   }
 
