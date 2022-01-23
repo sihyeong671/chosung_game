@@ -22,7 +22,7 @@ import { my_room } from "../utils/data/roomdata";
 const useStyles = makeStyles({
   player: {
     margin: 'auto',
-    backgroundColor: Color.green_1,
+    backgroundColor: Color.yellow_1,
   },
   player_img: {
     width: '80px',
@@ -48,6 +48,7 @@ export default function GamePage() {
   const [message, set_message] = useState('')
   const [message_list, set_message_list] = useState([])
 
+  let correct = false
    //socket listener
   useEffect(()=>{
     
@@ -73,30 +74,38 @@ export default function GamePage() {
     
     socket.on('wrong', (data) => {
       console.log('wrong' + data.user)
+      correct = false
+      console.log('correct' + correct)
     })
 
     socket.on('correct', (data) => {
       console.log('correct' + data.user)
+      correct = true
+      console.log('correct' + correct)
     })
 
   }, [round_start, problem])
 
   
   let ready_state = false
+  let btn_background = Color.green_6
   //준비하기 버튼 눌렀을 때
   const handleready = () =>{
     //for test
     // socket.emit('make_room', {title: 'test', user: 'testuser'})
     if(ready_state === false){
-      ready_state = true;
+      ready_state = true
       ready()
       console.log("ready: " + ready_state)
+      //btn_background = Color.yellow_6
     }
     else{
       ready_state = false
+      console.log("ready: " + ready_state)
+      //btn_background = Color.green_6
       //서버쪽에 보내서 처리 필요
     }
-    
+    //console.log("ready: " + ready_state)
     //ui 바뀌도록
   }
 
@@ -158,10 +167,6 @@ export default function GamePage() {
           </div>
           <div>
             <div className='question'>
-              {/*<Card elevation={5} className={classes.problem_card}>
-                <CardHeader title={problem}></CardHeader>
-                <CardContent></CardContent>
-              </Card>*/}
               <span className='question_text'>{problem}</span>
               {/*<span className='question_text'>ㅊ ㄹ ㄱㄷ ㅎ ㄱㅇㅂㅌ</span>*/}
             </div>
@@ -172,6 +177,12 @@ export default function GamePage() {
                 <HorizontalLayout>
                   {
                       my_room.pnames.map(item => {
+                        let name;
+                        if(item.name.length > 7){
+                          name = item.name.slice(0, 6) + '...'
+                        }else{
+                          name = item.name;
+                        }
                         return(
                           <Card key={uuid()} className={classes.player} elevation={5}>
                             <CardContent>
@@ -179,10 +190,10 @@ export default function GamePage() {
                                 <CardMedia
                                   component='img'
                                   height='80'
-                                  image='/img/test.jpg' className={classes.player_img}/>
+                                  image='/img/test1.png' className={classes.player_img}/>
                                 <div>
                                 <Typography variant='h6' component='div'>
-                                  {item.name}
+                                  {name}
                                 </Typography>
                                 <Typography variant='body2'>
                                   {item.score}
@@ -231,7 +242,7 @@ export default function GamePage() {
               </div>
               <div className='ready'>
                 <HorizontalLayout>
-                  <button className='ready_btn' onClick={handleready}>준비하기</button>
+                  <button className='ready_btn' style={{backgroundColor: btn_background}} onClick={handleready}>준비하기</button>
                   <button className='out_btn'>방 나가기</button>
                 </HorizontalLayout>
               </div>
@@ -252,7 +263,7 @@ export default function GamePage() {
         }
         .question{
           display: table;
-          height: 20vh;
+          height: 24vh;
           margin: auto;
           text-align: center;
         }
@@ -269,29 +280,51 @@ export default function GamePage() {
         #chatting{
           display: flex;
           flex-direction: column;
-          height: 35vh;
+          height: 36vh;
+          width: 95%;
+          margin: auto;
+          margin-bottom: 5px;
           overflow-y: scroll;
           overflow-x: hidden;
+          // border-left: 1px solid;
+          // border-top: 1px solid;
+          // border-bottom: 1px solid;
+          // border-color: ${Color.green_6};
+          // border-radius: 20px;
+          background-color: ${Color.green_1};
+          //box-shadow: 1px 1px 1px 1px grey;
+        }
+        #chatting::-webkit-scrollbar {
+          width: 5px;
+        }
+        #chatting::-webkit-scrollbar-thumb {
+          background-color: ${Color.green_8};
+          border-radius: 10px;
+        }
+        #chatting::-webkit-scrollbar-track {
+          background-color: ${Color.green_3};
+          boreder-radius: 10px;
         }
         .my_message{
           float: right;
-          background-color: ${Color.yellow_2};
+          background-color: ${Color.green_4};
           padding: 10px;
           margin: 10px;
         }
         .other_message{
           float: right;
-          background-color: ${Color.green_2};
+          background-color: white;
           padding: 10px;
           margin: 10px;
         }
         #chatting_input{
-          width: 95%;
+          display: block;
+          width: 94%;
           height: 30px;
           margin: auto;
-          border-radius: 20px;
+          border-radius: 10px;
           border-color: ${Color.green_2};
-          padding: 3px;
+          padding: 3px 8px 3px 8px;
         }
         .chatting_bottom{
           margin-top: 3px;
@@ -302,7 +335,7 @@ export default function GamePage() {
           margin:auto;
         }
         .ready_btn{
-          background-color: ${Color.green_6};
+          //background-color: ${btn_background};
           border: none;
           padding: 5px 16px;
           color: white;

@@ -1,5 +1,5 @@
 export default function UserCard({idx, user_info}){
-  const nick_name = user_info.nick_name
+  const nick_name = user_info.nick_name 
   const score = user_info.score
   const rank = idx
   return(
@@ -8,6 +8,7 @@ export default function UserCard({idx, user_info}){
         {rank}
       </div>
       <div className="name">
+        
         {nick_name}
       </div>
       <div className="score">

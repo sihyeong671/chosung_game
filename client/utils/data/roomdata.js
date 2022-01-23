@@ -21,6 +21,10 @@ export const my_room = {
     name: '사람 5',
     score: '80',
   },
+  {
+    name: '이름이길어지면이렇게됨',
+    score: '80',
+  },
 ],
   is_ready:[{
     name: '사람 1',
