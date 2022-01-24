@@ -49,8 +49,7 @@ export default function GamePage() {
 
   const not_ready_class = useStyles_not_ready();
   const ready_class = useStyles_ready();
-  //session storage에 저장된 user nickname 가져오기
-  const saveduser = sessionStorage.getItem('nickname')
+  let saveduser;
   let correct = true
   let max_second = 60
   let set_timer
@@ -59,13 +58,16 @@ export default function GamePage() {
   const [problem, set_problem] = useState('')
   const [message, set_message] = useState('')
   const [message_list, set_message_list] = useState([])
-  const [ready_state, set_ready_state] = useState(false)
+  const [my_ready_state, set_ready_state] = useState(false)
   const [btn_background, set_btn_background] = useState(Color.green_6)
   const [seconds, set_seconds] = useState(0)
   const [my_room, set_my_room] = useState({})
 
 
   useEffect(()=>{ // socket listener
+
+    //session storage에 저장된 user nickname 가져오기
+    saveduser = sessionStorage.getItem('nickname')
     
     socket.on('round_start', (data)=>{
       set_round_start(true)
@@ -100,14 +102,16 @@ export default function GamePage() {
       toast("정답입니다!")
     })
 
-    socket.on ('update_detail_room', (data)=>{
+    socket.on('update_detail_room', (data)=>{
       console.log(data);
       set_my_room(data);
     })
 
     socket.emit('get_detail_room', {
-      room_id : sessionStorage.getItem('room_id')
-    });
+      room_id : parseInt(sessionStorage.getItem('room_id'))
+    })
+
+    
 
   }, [round_start, problem, message_list])
   
@@ -140,15 +144,15 @@ export default function GamePage() {
 
 
   const handleready = () =>{
-    if(ready_state === false){
+    if(my_ready_state === false){
       set_ready_state(true)
       socket.emit('ready')
-      console.log("ready: " + ready_state)
+      console.log("ready: " + my_ready_state)
       set_btn_background(Color.yellow_6)
     }
     else{
       set_ready_state(false)
-      console.log("ready: " + ready_state)
+      console.log("ready: " + my_ready_state)
       set_btn_background(Color.green_6)
       //서버쪽에 보내서 처리 필요
     }
@@ -170,9 +174,44 @@ export default function GamePage() {
     set_message('')
   }
 
-  const 
+  let user_card = [];
+  for(let i = 0; i < my_room.pnames.length; ++i){
+    let show_name;
+    let ready_state;
+    if(my_room.pnames[i].length > 7){
+      show_name = my_room.pnames[i].slice(0, 6) + '...'
+    }
+    else{
+      show_name = my_room.pnames[i]
+    }
+    if(my_room.is_ready[i].includes(sessionStorage.getItem('nickname'))){
+      ready_state = true;
+    }
+    else{
+      ready_state = false;
+    }
+    user_card.push(
+      <Card key={uuid()} className={ready_state? ready_class.player: not_ready_class.player} elevation={5}>
+        <CardContent>
+          <HorizontalLayout>
+            <CardMedia
+              component='img'
+              height='80'
+              image='/img/test1.png' className={ready_state? ready_class.player_img : not_ready_class.player_img}/>
+            <div>
+            <Typography variant='h6' component='div'>
+              {show_name}
+            </Typography>
+            <Typography variant='body2'>
+              {/* {item.score} */}
+            </Typography>
+            </div>
+          </HorizontalLayout>
+        </CardContent>
+      </Card>
+    )
+  }
 
-  
 
   return(         
     <>
@@ -191,36 +230,7 @@ export default function GamePage() {
             <VerticalLayout>
               <div className='set_player'>
                 <HorizontalLayout>
-                  {
-                      my_room.names?.map(name => {
-                        let show_name;
-                        if(name.length > 7){
-                          show_name = name.slice(0, 6) + '...'
-                        }else{
-                          show_name = name;
-                        }
-                        return(
-                          <Card key={uuid()} className={ready_state? ready_class.player: not_ready_class.player} elevation={5}>
-                            <CardContent>
-                              <HorizontalLayout>
-                                <CardMedia
-                                  component='img'
-                                  height='80'
-                                  image='/img/test1.png' className={ready_state? ready_class.player_img : not_ready_class.player_img}/>
-                                <div>
-                                <Typography variant='h6' component='div'>
-                                  {show_name}
-                                </Typography>
-                                <Typography variant='body2'>
-                                  {/* {item.score} */}
-                                </Typography>
-                                </div>
-                              </HorizontalLayout>
-                            </CardContent>
-                          </Card>
-                        )
-                      })
-                  }
+                  {user_card}
                 </HorizontalLayout>
               </div>
               <div>

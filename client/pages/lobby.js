@@ -8,15 +8,13 @@ import Room from '../components/Room'
 import Link from 'next/link'
 import { connectSocket, socket } from '../utils/socket/socketManger'
 import CreateRoom from '../components/CreateRoom'
-import { user_infos } from '../utils/data/userdata'
-import { rooms } from '../utils/data/roomdata'
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { Color } from '../utils/color/colors'
 import VerticalLayout from '../components/VerticalLayout'
 import HorizontalLayout from '../components/HorizontalLayout'
-
+import { shouldForwardProp } from '@mui/styled-engine'
 
 function NextArrow(props){
 
@@ -54,40 +52,56 @@ export default function Lobby(){
   };
   const [show_modal, set_show_modal] = useState(false)
   const [room_list, set_room_list] = useState([])
+  const [rooms, set_rooms] = useState({})
+  const [user_infos, set_user_infos] = useState([])
 
   const off_modal = () => {
     set_show_modal(false)
   }
 
-  const roomUpdate = () => {
+  const roomListUpdate = () => {
     const temp = []
-    rooms?.forEach((v, k)=>{
-      temp.push(
-        <Room
-          key={uuid()}
-          room_id={k}
-          room_title={v.title}
-          room_cnt={v.rcnt}
-          is_in_game={v.is_in_game}
-          is_lock = {v.is_lock}
-        />
-      )
-    })
-    //  렌더링 최적화 필요
-    set_room_list(temp);
+
+  for(const [k, v] of Object.entries(rooms)){
+    temp.push(
+      <Room
+        key={uuid()}
+        room_id={parseInt(k)}
+        room_title={v.title}
+        room_cnt={v.rcnt}
+        is_in_game={v.is_in_game}
+        is_lock = {v.is_lock}
+      />
+    )
   }
+  set_room_list(temp);
+  }
+  
   
   useEffect(async ()=>{
     await connectSocket()
-    return(()=>{
-      console.log('clean lobby');
+    socket.on('update_room', (data)=>{
+      
+      if(data.room_cnt > 0 && !rooms.hasOwnProperty(data.room_id)){ // 생성
+        rooms[data.room_id] = {
+          title: data.room_title,
+          rcnt: data.room_cnt,
+          readycnt: data.room_readycnt,
+          is_lock: data.room_is_lock
+        }
+        set_rooms({...rooms, data})
+        roomListUpdate()
+      }
+      else if(rooms.hasOwnProperty(data.room_id) && data.room_cnt <= 0){
+        delete rooms[data.room_id];
+        console.log(rooms);
+        set_rooms({...rooms})
+        roomListUpdate()
+      }
     })
-  },[])
 
-  useEffect(()=>{ // 방정보 room_list에 컴포넌트로 만들어서 담기
-    roomUpdate()
-    const interval = setInterval(roomUpdate, 1000)
-    return (()=>{clearInterval(interval)})
+    socket.emit('get_room_list')
+    
   },[])
 
   const quickEnter = () => {

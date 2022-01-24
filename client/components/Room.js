@@ -9,12 +9,10 @@ import { Color } from "../utils/color/colors";
 export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock}){
   const enterRoom = (room_id) => {
     const info = {
-      room_id: room_id,
+      room_id: parseInt(room_id),
       user: sessionStorage.getItem('nickname'),
     }
-    console.log(info)
     socket.emit('enter_room', info)
-
   }
 
   return(
@@ -39,7 +37,6 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
           </div>
         </div>
         <div className="button">
-          
             <button 
               className="enter_btn"
               onClick={()=>{
