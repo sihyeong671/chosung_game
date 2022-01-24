@@ -19,9 +19,12 @@ export default function UserCard({idx, user_info}){
       <style jsx>{`
         .card{
           display:flex;
-          background-color: ${Color.green_1};
+          //background-color: ${Color.green_1};
           margin-bottom: 1rem;
-          border-radius: 20px;
+          margin-right: 1rem;
+          border: 1px solid;
+          border-color: black;
+          border-radius: 5px;
         }
         .rank{
           margin: 1rem;
