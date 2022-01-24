@@ -67,6 +67,10 @@ export default function Home() {
           font-size: 20px;
           font-weight: bold;
         }
+        .guest_login:hover{
+          cursor: pointer;
+          color: black;
+        }
       `}</style>
     </div>
   )

@@ -15,6 +15,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from "@mui/styles";
 import {Color} from "../utils/color/colors";
+import Link from 'next/link'
 import { ToastContainer, toast } from 'react-toastify';
 
 
@@ -111,8 +112,6 @@ export default function GamePage() {
       room_id : parseInt(sessionStorage.getItem('room_id'))
     })
 
-    
-
   }, [round_start, problem, message_list])
   
   //새로운 message 보낼 때 스크롤 위치
@@ -160,8 +159,7 @@ export default function GamePage() {
     //ui 바뀌도록
   }
 
-  //채팅 입력했을 때
-  const handlepost = (e) => {
+  const handlepost = (e) => { //채팅 입력했을 때
     e.preventDefault()
     const temp = {
       user: saveduser,
@@ -172,6 +170,11 @@ export default function GamePage() {
     set_message_list([...message_list, temp])
     console.log(message_list)
     set_message('')
+  }
+
+  const handleexit = (e) => { //나가기 버튼 클릭 시
+    socket.emit('exit_room')
+    console.log("exit")
   }
 
 
@@ -271,7 +274,9 @@ export default function GamePage() {
               <div className='ready'>
                 <HorizontalLayout>
                   <button className='ready_btn' onClick={()=>{handleready()}}>준비하기</button>
-                  <button className='out_btn'>방 나가기</button>
+                  <Link href='/lobby'>
+                    <button className='out_btn' onClick={()=>{handleexit()}}>방 나가기</button> 
+                  </Link>
                 </HorizontalLayout>
               </div>
             </VerticalLayout>
@@ -376,6 +381,10 @@ export default function GamePage() {
           font-size: 20px;
           font-weight: bold;
           margin-left: 10px;
+        }
+        .out_btn:hover{
+          cursor: pointer;
+          background-color: ${Color.green_7};
         }
       `}
       </style>
