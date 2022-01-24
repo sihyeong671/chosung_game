@@ -78,8 +78,8 @@ export default function Lobby(){
   }
   
   
-  useEffect(async ()=>{
-    await connectSocket()
+  useEffect(()=>{
+    
     socket.on('update_room', (data)=>{
       
       if(data.room_cnt > 0 && !rooms.hasOwnProperty(data.room_id)){ // 생성

@@ -16,6 +16,7 @@ export default function Home() {
         <div>
           <Link href={'/lobby'}>
             <Button onClick={()=>{
+              connectSocket()
               sessionStorage.setItem('guest', 'true')
             }}>
               게스트 로그인
