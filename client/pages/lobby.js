@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import UserCard from '../components/UserCard'
 import Room from '../components/Room'
 import Link from 'next/link'
-import { connectSocket, socket } from '../utils/socket/socketManger'
+import { socket } from '../utils/socket/socketManger'
 import CreateRoom from '../components/CreateRoom'
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -54,6 +54,8 @@ export default function Lobby(){
   const [room_list, set_room_list] = useState([])
   const [rooms, set_rooms] = useState({})
   const [user_infos, set_user_infos] = useState([])
+  const [my_score, set_my_score] = useState('')
+
 
   const off_modal = () => {
     set_show_modal(false)
@@ -101,16 +103,40 @@ export default function Lobby(){
     })
 
     socket.emit('get_room_list')
+
+    
+    
     
   },[])
 
-  const quickEnter = () => {
-    const info = {
-      room_id: -1,
-      user: sessionStorage.getItem('nickname'),
-    }
-    socket.emit('enter_room', info)
-  }
+  useEffect(() => {
+    const temp_name = sessionStorage.getItem('nickname')
+    
+    socket.emit('getmystatus', {name: temp_name})
+    socket.emit('getranking')
+  }, [])
+
+  useEffect(() => {
+    socket.on('yourstatus', (data) => {
+      set_my_score(data.score)
+      console.log(data.score)
+    })
+  }, [my_score])
+
+  useEffect(() => {
+    socket.on('yourranking', (data) => {
+      set_user_infos(data.stats)
+      console.log("ranking" + data)
+    })
+  }, [user_infos])
+
+  // const quickEnter = () => {
+  //   const info = {
+  //     room_id: -1,
+  //     user: sessionStorage.getItem('nickname'),
+  //   }
+  //   socket.emit('enter_room', info)
+  // }
   
   const sorted_infos = user_infos.sort((a, b) => {
     return b.score - a.score
@@ -139,10 +165,10 @@ export default function Lobby(){
               <div>
                 <HorizontalLayout>
                   <div className='my_place'>
-                    n위
+                    {/* n위 */}
                   </div>
                   <div className='my_score'>
-                    n점
+                    {my_score}점
                   </div>
                 </HorizontalLayout>
               </div>
