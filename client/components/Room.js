@@ -5,8 +5,15 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Link from "next/link";
 import { Color } from "../utils/color/colors";
+import { useRouter } from "next/router";
+import { useEffect, useState } from 'react'
 
 export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock}){
+
+  const router = useRouter();
+  let join_button;
+
+
   const enterRoom = (room_id) => {
     const info = {
       room_id: parseInt(room_id),
@@ -14,6 +21,23 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
     }
     socket.emit('enter_room', info)
   }
+
+  useEffect(() => {
+
+    socket.on('full_join',(data)=>{
+      window.alert('방이 가득 찼습니다');
+    })
+
+    socket.on('incorrect_pw',(data)=>{
+      window.alert('비밀번호가 틀렸습니다');
+    })
+
+    socket.on('correct_pw', (data)=>{
+      sessionStorage.setItem('room_id', room_id)
+      router.push('/GamePage')
+    })
+
+  }, []);
 
   return(
     <>
@@ -30,21 +54,40 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
         </div>
         <div className="lock_and_state">
           <div className="state">
-            {is_in_game? '게임중' : '입장 가능'} 
+            {is_in_game? '게임중' : '입장 가능'}
           </div>
           <div className="lock">
             {is_lock? <LockIcon/> : <LockOpenIcon/>}
           </div>
         </div>
         <div className="button">
-            <button 
-              className="enter_btn"
-              onClick={()=>{
-                sessionStorage.setItem('room_id', room_id)
-                enterRoom(room_id)
-              }}>
-              <Link href='/GamePage'>참가하기</Link>
-          </button>
+          {room_cnt === 6 ? 
+            <button
+              disabled
+              className="enter_btn">
+                참가하기
+            </button>
+              :
+              (is_lock ? 
+                <button
+                className="enter_btn"
+                onClick={()=>{
+                  let pw = window.prompt("비밀번호를 입력하세요")
+                  enterRoom(room_id)
+                }}>
+                참가하기
+              </button>:
+                <button
+                className="enter_btn"
+                onClick={()=>{
+                  sessionStorage.setItem('room_id', room_id)
+                  enterRoom(room_id)
+                  router.push('/GamePage')
+                }}>
+                참가하기
+              </button>)
+            
+          }
         </div>
       </div>
       <style jsx>{`
@@ -87,6 +130,10 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
         }
         .enter_btn:hover{
           background-color: ${Color.green_6};
+        }
+        .join_btn{
+          border: none;
+          
         }
       `}</style>
     </>

@@ -155,9 +155,13 @@ export default function Lobby(){
                 set_show_modal(true)
               }}variant="contained">방 만들기</button>
             <Link href="/GamePage">
-              <button className='quick_enter_btn' onClick={()=>{
-                quickEnter()
-              }} variant="contained">빠른 입장</button>
+              <button 
+                className='quick_enter_btn'
+                onClick={()=>{
+                  quickEnter()
+                }} 
+                variant="contained"
+                disabled>빠른 입장</button>
             </Link>
           </div>
           <div className='slider'>
