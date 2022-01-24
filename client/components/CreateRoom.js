@@ -28,7 +28,7 @@ export default function CreateRoom(props){
       pw: lock_number,
       is_lock: lock
     }
-    console.log(info.is_lock)
+    console.log(info.is_lock)           
     socket.emit('make_room', info)
   }
 
@@ -112,6 +112,10 @@ export default function CreateRoom(props){
           font-weight: bold;
           margin:auto;
         }
+        .ok:hover{
+          cursor: pointer;
+          background-color: ${Color.green_7};
+        }
         .cancel{
           background-color: ${Color.green_6};
           border: none;
@@ -120,6 +124,10 @@ export default function CreateRoom(props){
           font-size: 20px;
           font-weight: bold;
           margin:auto;
+        }
+        .cancel:hover{
+          cursor: pointer;
+          background-color: ${Color.green_7};
         }
       `}
       </style>
