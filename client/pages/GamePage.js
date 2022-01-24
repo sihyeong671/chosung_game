@@ -1,6 +1,6 @@
 import VerticalLayout from "../components/VerticalLayout";
 import HorizontalLayout from "../components/HorizontalLayout";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProgressBar from "../components/ProgressBar.js";
 import uuid from 'react-uuid'
 import { sendMessage } from '../utils/socket/socketManger'
@@ -181,13 +181,6 @@ export default function GamePage() {
     socket.emit('exit_room')
     console.log("exit")
   }
-
-  // const handletoast = () => { //정답 시 toast status 설정
-  //   set_toast_status(true)
-  // }
-  // const l = "geustdkdkdkdkdkdkdkdk"
-  //const handletoast = () => toast(saveduser + '가 정답을 맞췄습니다!')
-  //const handletoast = () => {console.log(" testsetsetaset");}
 
   return(         
     <>
