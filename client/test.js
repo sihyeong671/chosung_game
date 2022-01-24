@@ -64,3 +64,6 @@ arr.sort((a,b)=>{
 })
 console.log(arr);
 console.log(map.get('c'));
+se = new Map();
+se.set("a",1);
+se.set("b",1);
