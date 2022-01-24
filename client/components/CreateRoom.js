@@ -25,7 +25,7 @@ export default function CreateRoom(props){
     const info = {
       title: room_name,
       user: sessionStorage.getItem('nickname'),
-      pw: lock_number,
+      pw: lock_number.toString(),
       is_lock: lock
     }
     console.log(info.is_lock)           
@@ -51,7 +51,16 @@ export default function CreateRoom(props){
             </div>
             <div className="pw_wrapper">
               <HorizontalLayout>
-                  <input disabled placeholder="비밀번호" type='password' className='pw_input' ref={inputRef}/>
+                  <input 
+                    disabled
+                    placeholder="비밀번호"
+                    type='password'
+                    className='pw_input'
+                    ref={inputRef}
+                    value={lock_number}
+                    onChange={(e)=>{
+                      set_lock_number(e.target.value)
+                    }}/>
                   <div className="toggle">
                     <input
                       type="checkbox"

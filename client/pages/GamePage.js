@@ -14,8 +14,6 @@ import {Color} from "../utils/color/colors";
 import Link from 'next/link'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import CorrectToast from "../components/CorrectToast";
-
 
 
 const useStyles_not_ready = makeStyles({
@@ -233,7 +231,7 @@ export default function GamePage() {
                             <CardMedia
                               component='img'
                               height='80'
-                              image='/img/test1.png' className={ready_state? ready_class.player_img : not_ready_class.player_img}/>
+                              image='/img/character_1.png' className={ready_state? ready_class.player_img : not_ready_class.player_img}/>
                             <div>
                             <Typography variant='h6' component='div'>
                               {show_name}

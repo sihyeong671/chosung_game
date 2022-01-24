@@ -22,6 +22,17 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
     socket.emit('enter_room', info)
   }
 
+  const enterRoomPW = (room_id, pw) => {
+    const info = {
+      room_id: parseInt(room_id),
+      user: sessionStorage.getItem('nickname'),
+      pw: pw
+    }
+    socket.emit('enter_room', info)
+  }
+
+
+
   useEffect(() => {
 
     socket.on('full_join',(data)=>{
@@ -33,6 +44,7 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
     })
 
     socket.on('correct_pw', (data)=>{
+      console.log("correct_pw run");
       sessionStorage.setItem('room_id', room_id)
       router.push('/GamePage')
     })
@@ -73,7 +85,7 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
                 className="enter_btn"
                 onClick={()=>{
                   let pw = window.prompt("비밀번호를 입력하세요")
-                  enterRoom(room_id)
+                  enterRoomPW(room_id, pw.toString())
                 }}>
                 참가하기
               </button>:
