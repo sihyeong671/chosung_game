@@ -50,26 +50,26 @@ export default function GamePage() {
 
   const not_ready_class = useStyles_not_ready();
   const ready_class = useStyles_ready();
-  let saveduser;
   let correct = true
   let max_second = 60
   let set_timer
-  
+  const [saveduser, set_saveduser] = useState('');
   const [round_start, set_round_start]= useState(false)
   const [problem, set_problem] = useState('')
   const [message, set_message] = useState('')
   const [message_list, set_message_list] = useState([])
-  const [my_ready_state, set_ready_state] = useState(false)
+  const [my_ready_state, set_my_ready_state] = useState(false)
   const [btn_background, set_btn_background] = useState(Color.green_6)
   const [seconds, set_seconds] = useState(0)
   const [my_room, set_my_room] = useState({})
   const [score, set_score]= useState([])
 
+  useEffect(()=>{ //session storage에 저장된 user nickname 가져오기
+    set_saveduser(sessionStorage.getItem('nickname'))
+  } , [])
+
   useEffect(()=>{ // socket listener
 
-    //session storage에 저장된 user nickname 가져오기
-    saveduser = sessionStorage.getItem('nickname')
-    
     socket.on('round_start', (data)=>{
       set_round_start(true)
       console.log('round_start: ' + round_start)
@@ -85,11 +85,7 @@ export default function GamePage() {
     socket.on('round_over', (data)=>{ // 수정
       console.log('round_over')
       console.log(data);
-      set_score(data);
-    })
-
-    socket.on('new_message', (data) => {
-      set_message_list([...message_list, data])
+      set_score(data.score);
     })
     
     socket.on('wrong', (data) => { // 수정
@@ -102,7 +98,7 @@ export default function GamePage() {
       console.log('correct' + data.user)
       correct = true
       console.log('correct' + correct)
-      toast("정답입니다!")
+      //toast("정답입니다!")
     })
 
     socket.on('update_detail_room', (data)=>{
@@ -110,11 +106,23 @@ export default function GamePage() {
       set_my_room(data);
     })
 
+    socket.on('game_over', (data) => {
+      set_my_ready_state(false)
+      console.log("게임 오버" + my_ready_state)
+      set_btn_background(Color.green_6)
+    })
+
     socket.emit('get_detail_room', {
       room_id : parseInt(sessionStorage.getItem('room_id'))
     })
 
-  }, [round_start, problem, message_list])
+  },[])
+
+  useEffect(()=>{
+    socket.on('new_message', (data) => {
+      set_message_list([...message_list, data])
+    })
+  }, [message_list])
   
   //새로운 message 보낼 때 스크롤 위치
   useEffect(() => {
@@ -123,36 +131,37 @@ export default function GamePage() {
   }, [message_list])
   
   //timer 숫자 설정
-  useEffect(() => {
+  // useEffect(() => {
 
-    if(round_start === true){
-      set_timer = setInterval(() => {
-        if(seconds === max_second){
-          set_seconds(0)
-          //handle round over
-        }
-        else{
-          set_seconds(seconds + 1)
-        }
+  //   if(round_start === true){
+  //     set_timer = setInterval(() => {
+  //       if(seconds === max_second){
+  //         set_seconds(0)
+  //         //handle round over
+  //       }
+  //       else{
+  //         set_seconds(seconds + 1)
+  //       }
         
-        console.log(seconds)
-      }, 1000);
+  //       console.log(seconds)
+  //     }, 1000);
   
-      return () => clearInterval(set_timer)
-    }
+  //     return () => clearInterval(set_timer)
+  //   }
     
-  }, [seconds])
+  // }, [seconds])
 
 
   const handleready = () =>{
     if(my_ready_state === false){
-      set_ready_state(true)
+      set_my_ready_state(true)
       socket.emit('ready')
       console.log("ready: " + my_ready_state)
       set_btn_background(Color.yellow_6)
     }
     else{
-      set_ready_state(false)
+      set_my_ready_state(false)
+      socket.emit('cancel_ready')
       console.log("ready: " + my_ready_state)
       set_btn_background(Color.green_6)
       //서버쪽에 보내서 처리 필요
@@ -163,6 +172,7 @@ export default function GamePage() {
 
   const handlepost = (e) => { //채팅 입력했을 때
     e.preventDefault()
+    console.log(saveduser);
     const temp = {
       user: saveduser,
       content: message
@@ -201,7 +211,7 @@ export default function GamePage() {
 
                       let show_name;
                       let ready_state;
-                      let score = 0;
+                      let my_score = 0;
 
                       if(name.length > 7){ // 이름
                         show_name = name.slice(0, 6) + '...'
@@ -210,7 +220,7 @@ export default function GamePage() {
                         show_name = name
                       }
 
-                      if(my_room.is_ready.includes(sessionStorage.getItem('nickname'))){ // 준비상태
+                      if(my_room.is_ready.includes(name)){ // 준비상태
                         ready_state = true;
                       }
                       else{
@@ -220,7 +230,7 @@ export default function GamePage() {
                       // 점수
                       score?.forEach((item)=>{
                         if(item.name === name){
-                          score = item.score;
+                          my_score = item.value;
                         }
                       })
 
@@ -237,7 +247,7 @@ export default function GamePage() {
                               {show_name}
                             </Typography>
                             <Typography variant='body2'>
-                              {score}
+                              {my_score}
                             </Typography>
                             </div>
                           </HorizontalLayout>
@@ -254,18 +264,18 @@ export default function GamePage() {
                     {
                       message_list?.map((msg) => {
                         if(msg.user === saveduser){
-                          console.log("me")
+                          console.log("me " + saveduser)
                           return(
-                            <div>
-                              <span key={uuid()} className='my_message'>{msg.content}</span>
+                            <div key={uuid()}>
+                              <span  className='my_message'>{msg.content}</span>
                             </div>
                           )
                         }
                         else{
                           console.log("you")
                           return(
-                            <div>
-                              <span key={uuid()} className='other_message'>{msg.content}</span>
+                            <div key={uuid()}>
+                              <span  className='other_message'>{msg.content}</span>
                             </div>
                           )
                         }

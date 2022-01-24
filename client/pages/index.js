@@ -1,11 +1,11 @@
 import Head from 'next/head'
 import Image from 'next/image'
-
 import Button from '@mui/material/Button'
 import Link from 'next/link'
 import {BACKGROUND_IMG} from '../public/img/background_img.jpg'
 import { Color } from '../utils/color/colors'
 import VerticalLayout from '../components/VerticalLayout'
+import { connectSocket } from '../utils/socket/socketManger'
 export default function Home() {
   
   return(
@@ -20,6 +20,7 @@ export default function Home() {
             <Link href={'/lobby'}>
               <button className='guest_login' onClick={()=>{
                 sessionStorage.setItem('guest', 'true')
+                connectSocket()
               }}>
                 게스트 로그인
               </button>
