@@ -1,19 +1,19 @@
 import { Color } from "../utils/color/colors";
 
-export default function CorrectToast(){
+export default function CorrectToast({correct_player}){
   return(
     <>
       <div className='correct_toast'>
-        Correct!! 디자인 넣어야겠다
+        {correct_player}가 정답을 맞췄습니다.
       </div>
       <style jsx>{`
         .correct_toast {
           position: absolute;
-          top: 20vh;
-          left: 30vw;
+          top: 50vh;
+          left: 40vw;
           padding: 11px;
-          width: 40vw;
-          height: 60vh;
+          width: 20vw;
+          height: 30vh;
           //background: ${Color.green_7};
           //color: white;
           border-radius: 4px;

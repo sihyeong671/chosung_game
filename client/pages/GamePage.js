@@ -301,7 +301,7 @@ export default function GamePage() {
         </VerticalLayout>
         {/* <button onClick={() => {handletoast()}}>test</button> */}
       </div>
-      {toast_status && <CorrectToast className='correct_toast'/>}
+      {toast_status && <CorrectToast correct_player={saveduser} className='correct_toast'/>}
       <style jsx>{`
         .game_page{
           height: 100%;
