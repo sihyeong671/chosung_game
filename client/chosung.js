@@ -133,7 +133,7 @@ io.sockets.on('connection', (socket) => {
 			User.create({'name':name, score:0})
 			}
 			else score=person.score;			  
-			console.log(`getstatus ${name} : %d ;point`,score);
+			console.log(`getstatus ${name} : %d : point`,score);
 			io.emit('yourstatus',{score:score});
 		})
 	})
@@ -148,6 +148,7 @@ io.sockets.on('connection', (socket) => {
       }
       io.emit('yourranking',msg);
       console.log(`${docs.length} docs have been transferred`);
+	  console.log(docs);
     })
   })
 
@@ -283,6 +284,7 @@ io.sockets.on('connection', (socket) => {
 			socket.emit('incorrect_pw',{});
 			return;
 		}
+		socket.emit(`correct_pw`,{});
 		if(rooms[room_id].rcnt>=l){
 			socket.emit(`full`,{user:name});
 			return;
