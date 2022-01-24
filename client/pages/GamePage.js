@@ -1,14 +1,10 @@
 import VerticalLayout from "../components/VerticalLayout";
 import HorizontalLayout from "../components/HorizontalLayout";
-import { io, Socket } from "socket.io-client";
 import React, { useState, useEffect, useRef } from 'react';
 import ProgressBar from "../components/ProgressBar.js";
 import uuid from 'react-uuid'
-import { useRouter } from 'next/router'
-import { connectSocket, sendMessage } from '../utils/socket/socketManger'
-import { chainPropTypes } from "@mui/utils";
+import { sendMessage } from '../utils/socket/socketManger'
 import { socket } from "../utils/socket/socketManger";
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -17,6 +13,7 @@ import { makeStyles } from "@mui/styles";
 import {Color} from "../utils/color/colors";
 import Link from 'next/link'
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import CorrectToast from "../components/CorrectToast";
 
 
@@ -111,7 +108,8 @@ export default function GamePage() {
       console.log('correct' + data.user)
       correct = true
       console.log('correct' + correct)
-      handletoast()
+      
+      toast(`${data.user}가 정답을 맞췄습니다!`)
     })
 
     socket.on('update_detail_room', (data)=>{
@@ -145,9 +143,9 @@ export default function GamePage() {
   }, [message_list])
 
   useEffect(() => { //toast 띄우기
-    if(toast_status === true){
-      setTimeout(() => set_toast_status(false), 1000)
-    }
+    // if(toast_status === true){
+    //   setTimeout(() => set_toast_status(false), 1000)
+    // }
   }, [toast_status])
 
   const handleready = () =>{  //준비하기 클릭 시
@@ -184,9 +182,12 @@ export default function GamePage() {
     console.log("exit")
   }
 
-  const handletoast = () => { //정답 시 toast status 설정
-    set_toast_status(true)
-  }
+  // const handletoast = () => { //정답 시 toast status 설정
+  //   set_toast_status(true)
+  // }
+  // const l = "geustdkdkdkdkdkdkdkdk"
+  //const handletoast = () => toast(saveduser + '가 정답을 맞췄습니다!')
+  //const handletoast = () => {console.log(" testsetsetaset");}
 
   return(         
     <>
@@ -290,7 +291,7 @@ export default function GamePage() {
               </div>
               <div className='ready'>
                 <HorizontalLayout>
-                  <button className='ready_btn' onClick={()=>{handleready()}}>준비하기</button>
+                  <button className='ready_btn' disabled={round_start} onClick={()=>{handleready()}}>준비하기</button>
                   <Link href='/lobby'>
                     <button className='out_btn' onClick={()=>{handleexit()}}>방 나가기</button> 
                   </Link>
@@ -299,9 +300,11 @@ export default function GamePage() {
             </VerticalLayout>
           </div>
         </VerticalLayout>
-        {/* <button onClick={() => {handletoast()}}>test</button> */}
+          {/* <button onClick={() => {handletoast()}}>test</button> */}
       </div>
-      {toast_status && <CorrectToast correct_player={saveduser} className='correct_toast'/>}
+      {/* {toast_status && <CorrectToast correct_player={saveduser} className='correct_toast'/>} */}
+      <ToastContainer
+        closeOnClick/>
       <style jsx>{`
         .game_page{
           height: 100%;
