@@ -83,6 +83,8 @@ export default function GamePage() {
 
     socket.on('round_over', (data)=>{ // 수정
       console.log('round_over')
+      console.log(data);
+      set_score(data);
     })
 
     socket.on('new_message', (data) => {
@@ -192,25 +194,32 @@ export default function GamePage() {
             <VerticalLayout>
               <div className='set_player'>
                 <HorizontalLayout>
-                  {(my_room.pnames)?.map((item)=>{ // score도 받아야함
-                      // const name = item.name;
-                      // const score = item.score;
-                      // let show_name;
-                      // let ready_state;
+                  {(my_room.pnames)?.map((name)=>{ // score도 받아야함
 
-                      // if(name.length > 7){
-                      //   show_name = name.slice(0, 6) + '...'
-                      // }
-                      // else{
-                      //   show_name = name
-                      // }
+                      let show_name;
+                      let ready_state;
+                      let score = 0;
 
-                      // if(my_room.is_ready.includes(sessionStorage.getItem('nickname'))){
-                      //   ready_state = true;
-                      // }
-                      // else{
-                      //   ready_state = false;
-                      // }
+                      if(name.length > 7){ // 이름
+                        show_name = name.slice(0, 6) + '...'
+                      }
+                      else{
+                        show_name = name
+                      }
+
+                      if(my_room.is_ready.includes(sessionStorage.getItem('nickname'))){ // 준비상태
+                        ready_state = true;
+                      }
+                      else{
+                        ready_state = false;
+                      }
+
+                      // 점수
+                      score?.forEach((item)=>{
+                        if(item.name === name){
+                          score = item.score;
+                        }
+                      })
 
                     return(
                       <Card key={uuid()} className={ready_state? ready_class.player: not_ready_class.player} elevation={5}>
@@ -225,7 +234,7 @@ export default function GamePage() {
                               {show_name}
                             </Typography>
                             <Typography variant='body2'>
-                              {/* {item.score} */}
+                              {score}
                             </Typography>
                             </div>
                           </HorizontalLayout>
