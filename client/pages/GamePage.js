@@ -62,7 +62,7 @@ export default function GamePage() {
   const [btn_background, set_btn_background] = useState(Color.green_6)
   const [seconds, set_seconds] = useState(0)
   const [my_room, set_my_room] = useState({})
-
+  const [score, set_score]= useState([])
 
   useEffect(()=>{ // socket listener
 
@@ -174,44 +174,6 @@ export default function GamePage() {
     set_message('')
   }
 
-  let user_card = [];
-  for(let i = 0; i < my_room.pnames.length; ++i){
-    let show_name;
-    let ready_state;
-    if(my_room.pnames[i].length > 7){
-      show_name = my_room.pnames[i].slice(0, 6) + '...'
-    }
-    else{
-      show_name = my_room.pnames[i]
-    }
-    if(my_room.is_ready[i].includes(sessionStorage.getItem('nickname'))){
-      ready_state = true;
-    }
-    else{
-      ready_state = false;
-    }
-    user_card.push(
-      <Card key={uuid()} className={ready_state? ready_class.player: not_ready_class.player} elevation={5}>
-        <CardContent>
-          <HorizontalLayout>
-            <CardMedia
-              component='img'
-              height='80'
-              image='/img/test1.png' className={ready_state? ready_class.player_img : not_ready_class.player_img}/>
-            <div>
-            <Typography variant='h6' component='div'>
-              {show_name}
-            </Typography>
-            <Typography variant='body2'>
-              {/* {item.score} */}
-            </Typography>
-            </div>
-          </HorizontalLayout>
-        </CardContent>
-      </Card>
-    )
-  }
-
 
   return(         
     <>
@@ -230,7 +192,48 @@ export default function GamePage() {
             <VerticalLayout>
               <div className='set_player'>
                 <HorizontalLayout>
-                  {user_card}
+                  {(my_room.pnames)?.map((item)=>{ // score도 받아야함
+                      // const name = item.name;
+                      // const score = item.score;
+                      // let show_name;
+                      // let ready_state;
+
+                      // if(name.length > 7){
+                      //   show_name = name.slice(0, 6) + '...'
+                      // }
+                      // else{
+                      //   show_name = name
+                      // }
+
+                      // if(my_room.is_ready.includes(sessionStorage.getItem('nickname'))){
+                      //   ready_state = true;
+                      // }
+                      // else{
+                      //   ready_state = false;
+                      // }
+
+                    return(
+                      <Card key={uuid()} className={ready_state? ready_class.player: not_ready_class.player} elevation={5}>
+                        <CardContent>
+                          <HorizontalLayout>
+                            <CardMedia
+                              component='img'
+                              height='80'
+                              image='/img/test1.png' className={ready_state? ready_class.player_img : not_ready_class.player_img}/>
+                            <div>
+                            <Typography variant='h6' component='div'>
+                              {show_name}
+                            </Typography>
+                            <Typography variant='body2'>
+                              {/* {item.score} */}
+                            </Typography>
+                            </div>
+                          </HorizontalLayout>
+                        </CardContent>
+                      </Card>
+                    )
+                    })
+                  }
                 </HorizontalLayout>
               </div>
               <div>
