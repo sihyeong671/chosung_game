@@ -78,7 +78,7 @@ let rooms=[],roomSet=new Set();
 let weight=[70,55,45,30,20,10];
 /*
 room 속성
-rcnt,title,pnames,is_ready,readycnt,answer,hint,pw,isLocked
+rcnt,title,pnames,is_ready,readycnt,answer,hint,pw,is_lock
 winner,score, is_in_game
 socket 속성
 room_id,name
@@ -89,19 +89,34 @@ io.sockets.on('connection', (socket) => {
 	let room_id=-1;//현재 방에 들어가있지 않음
 	let name;
 	let round_timerId=-1,hint_timerId=-1;
-	
+
 	socket.on('get_room_list',(data)=>{// required : name
-		name = data.name;
+		// name = data.name;
 		for(let rid of roomSet){// 처음 들어왔을때 모든 방 정보를 그 소켓에만 보내기
 			let room=rooms[rid];
 			const room_info={
 				room_id:rid,
 				room_title:room.title,
 				room_cnt:room.rcnt,
-				room_readycnt:room.readycnt
+				room_readycnt:room.readycnt,
+				is_lock: room.is_lock
 			}
 			socket.emit(`update_room`,room_info);
 		}
+	})
+
+	socket.on('get_detail_room',(data)=>{
+		const rid = data.room_id;
+		console.log("room id:", rid);
+		let room = rooms[rid];
+		const detail_room_info = {
+			room_id:rid,
+			pnames:room.pnames,
+			is_ready:Array.from(room.is_ready)
+		}
+		console.log(detail_room_info);
+		io.to(parseInt(rid)).emit('update_detail_room', detail_room_info);
+		console.log(io.sockets.adapter.rooms);
 	})
 
 	socket.on('getmystatus',(data)=>{// required : name
@@ -135,14 +150,15 @@ io.sockets.on('connection', (socket) => {
 		handle_roomexit(room_id);
 	})
 
-	socket.on('make_room', (data) => {// required : (user)name, title, isLocked, pw
+	socket.on('make_room', (data) => {// required : (user)name, title, is_lock, pw
 		room_id=roomnumber;
 		name=data.user;
 		roomnumber++;
+		// console.log(data);
 		rooms[room_id]={
 			title:data.title,
 			pw:data.pw,
-			isLocked:data.isLocked,
+			is_lock:data.is_lock,
 			rcnt:1,
 			pnames:[data.user],
 			is_ready:new Set(),
@@ -150,17 +166,20 @@ io.sockets.on('connection', (socket) => {
 			score:new Map(),
 			is_in_game:false
 		}
+		// console.log(rooms[room_id]);
 		console.log(`room made! : id ${room_id} , title ${data.title}`);
 		socket.join(room_id);
 		roomSet.add(room_id);
+		socket.emit('send_room_id', {room_id: room_id});
 		send_update_room(room_id);
 	})
 
 	socket.on('enter_room', (data) => { // required : room_id(quick match면 -1), pw(안잠겼으면 "")
-		room_id=data.room_id;
+		room_id = data.room_id;
+		name = data.user;
 		console.log(`enter room : id ${room_id} , name : ${name}`);
 		if(room_id!=-1){
-			handle_enter(room_id,data.pw);	
+			handle_enter(room_id,data.pw, name);	
 		}
 		else{// quick match
 			if(roomSet.size==0){
@@ -178,7 +197,7 @@ io.sockets.on('connection', (socket) => {
 				return;
 			}
 			room_id=roomArr[0];
-			handle_enter(room_id,data.pw);
+			handle_enter(room_id,data.pw, name);
 		}
 	})
 
@@ -203,9 +222,9 @@ io.sockets.on('connection', (socket) => {
 
 	socket.on('message',(data)=>{// required : name, content
 		if(room_id==-1||rooms[room_id].is_in_game==false){
-			//socket.to(room_id).emit('new_message',data);//그냥 echo
+			socket.to(room_id).emit('new_message',data);//그냥 echo
 			console.log(data);
-			socket.emit('new_message',data);
+			// socket.emit('new_message',data);
 			return;
 		}
 		if(data.content!=rooms[room_id].answer){
@@ -237,9 +256,10 @@ io.sockets.on('connection', (socket) => {
 		room_id=-1;
 	}
 
-	function handle_enter(room_id,room_pw){
-		if(rooms[room_id].isLocked&&rooms[room_id].pw!=room_pw){
+	function handle_enter(room_id,room_pw, name){
+		if(rooms[room_id].is_lock&&rooms[room_id].pw!=room_pw){
 			socket.emit('incorrect_pw',{});
+			return;
 		}
 		if(rooms[room_id].rcnt>=l){
 			socket.emit(`full`,{user:name});
@@ -364,7 +384,7 @@ function send_update_room(room_id){
 		room_title:room.title,
 		room_cnt:room.rcnt,
 		room_readycnt:room.readycnt,
-		room_isLocked:room.isLocked
+		room_is_lock:room.is_lock
 	}
 	io.emit(`update_room`,room_info);
 	const room_detail={
@@ -372,7 +392,7 @@ function send_update_room(room_id){
 		pnames:room.pnames,
 		is_ready:Array.from(room.is_ready)
 	}
-	io.to(room_id).emit(`update_detail_room`,room_detail);
+	io.to(room_id).emit(`update_detail_room`,room_detail); // 따로 함수 만들고 on 이벤트 만들것 
 }
 
 server.listen(80, () => {
