@@ -15,12 +15,11 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { makeStyles } from "@mui/styles";
 import {Color} from "../utils/color/colors";
-import { my_room } from "../utils/data/roomdata";
 import { ToastContainer, toast } from 'react-toastify';
 
 
 
-const useStyles = makeStyles({
+const useStyles_not_ready = makeStyles({
   player: {
     margin: 'auto',
     backgroundColor: Color.yellow_1,
@@ -31,35 +30,45 @@ const useStyles = makeStyles({
   }
 })
 
+const useStyles_ready = makeStyles({
+  player: {
+    margin: 'auto',
+    backgroundColor: Color.green_3,
+  },
+  player_img: {
+    width: '80px',
+    marginRight: '8px',
+  }
+})
+
+
 //for test
 // connectSocket()
 
 export default function GamePage() {
-  const classes = useStyles();
-  
-  //session storage에 저장된 user nickname 가져오기
-  const saveduser = sessionStorage.getItem('nickname')
-  //const saveduser = "userTest"
 
+  const not_ready_class = useStyles_not_ready();
+  const ready_class = useStyles_ready();
+  let saveduser;
+  let correct = true
+  let max_second = 60
+  let set_timer
+  
   const [round_start, set_round_start]= useState(false)
-  
-
   const [problem, set_problem] = useState('')
-
   const [message, set_message] = useState('')
   const [message_list, set_message_list] = useState([])
-  const [prelen, set_prelen] = useState(0)
-  // let correct = false
-  let correct = true
-   //socket listener
-  useEffect(()=>{
-    console.log("run useeEfffect GamePage");
-    console.log(my_room.names.length);
-    console.log(my_room);
+  const [my_ready_state, set_ready_state] = useState(false)
+  const [btn_background, set_btn_background] = useState(Color.green_6)
+  const [seconds, set_seconds] = useState(0)
+  const [my_room, set_my_room] = useState({})
+  const [score, set_score]= useState([])
+
+  useEffect(()=>{ // socket listener
+
+    //session storage에 저장된 user nickname 가져오기
+    saveduser = sessionStorage.getItem('nickname')
     
-    if(prelen !== my_room.names.length){
-      set_prelen(my_room.names.length);
-    }
     socket.on('round_start', (data)=>{
       set_round_start(true)
       console.log('round_start: ' + round_start)
@@ -72,84 +81,46 @@ export default function GamePage() {
       console.log(problem)
     })
 
-    socket.on('round_over', (data)=>{
+    socket.on('round_over', (data)=>{ // 수정
       console.log('round_over')
     })
 
     socket.on('new_message', (data) => {
-      console.log(data)
       set_message_list([...message_list, data])
-      console.log(message_list)
     })
     
-    socket.on('wrong', (data) => {
+    socket.on('wrong', (data) => { // 수정
       console.log('wrong' + data.user)
       correct = false
       console.log('correct' + correct)
     })
 
-    socket.on('correct', (data) => {
+    socket.on('correct', (data) => { // 수정
       console.log('correct' + data.user)
       correct = true
       console.log('correct' + correct)
       toast("정답입니다!")
     })
 
+    socket.on('update_detail_room', (data)=>{
+      console.log(data);
+      set_my_room(data);
+    })
+
+    socket.emit('get_detail_room', {
+      room_id : parseInt(sessionStorage.getItem('room_id'))
+    })
+
+    
+
   }, [round_start, problem, message_list])
   
-  const [ready_state, set_ready_state] = useState(false)
-  const [btn_background, set_btn_background] = useState(Color.green_6)
-  
-  //준비하기 버튼 눌렀을 때
-  const ready = () => {
-    socket.emit('ready')
-  }
-
-  const handleready = () =>{
-    //for test
-    // socket.emit('make_room', {title: 'test', user: 'testuser'})
-    if(ready_state === false){
-      set_ready_state(true)
-      ready()
-      console.log("ready: " + ready_state)
-      set_btn_background(Color.yellow_6)
-    }
-    else{
-      set_ready_state(false)
-      console.log("ready: " + ready_state)
-      set_btn_background(Color.green_6)
-      //서버쪽에 보내서 처리 필요
-    }
-    //console.log("ready: " + ready_state)
-    //ui 바뀌도록
-  }
-
-
   //새로운 message 보낼 때 스크롤 위치
   useEffect(() => {
     const chatting_view = document.getElementById('chatting')
     chatting_view.scrollBy({top:chatting_view.scrollHeight})
   }, [message_list])
-
-  //채팅 입력했을 때
-  const handlepost = (e) => {
-    e.preventDefault()
-    const temp = {
-      user: saveduser,
-      content: message
-    }
-    sendMessage(temp)
-    console.log(message)
-    set_message_list([...message_list, temp])
-    console.log(message_list)
-    set_message('')
-  }
-
-  let max_second = 60
-  let set_timer
-
-  const [seconds, set_seconds] = useState(0)
-
+  
   //timer 숫자 설정
   useEffect(() => {
 
@@ -171,6 +142,39 @@ export default function GamePage() {
     
   }, [seconds])
 
+
+  const handleready = () =>{
+    if(my_ready_state === false){
+      set_ready_state(true)
+      socket.emit('ready')
+      console.log("ready: " + my_ready_state)
+      set_btn_background(Color.yellow_6)
+    }
+    else{
+      set_ready_state(false)
+      console.log("ready: " + my_ready_state)
+      set_btn_background(Color.green_6)
+      //서버쪽에 보내서 처리 필요
+    }
+    //console.log("ready: " + ready_state)
+    //ui 바뀌도록
+  }
+
+  //채팅 입력했을 때
+  const handlepost = (e) => {
+    e.preventDefault()
+    const temp = {
+      user: saveduser,
+      content: message
+    }
+    sendMessage(temp)
+    console.log(message)
+    set_message_list([...message_list, temp])
+    console.log(message_list)
+    set_message('')
+  }
+
+
   return(         
     <>
       <div className='game_page' >
@@ -188,35 +192,47 @@ export default function GamePage() {
             <VerticalLayout>
               <div className='set_player'>
                 <HorizontalLayout>
-                  {
-                      my_room.names?.map(name => {
-                        let show_name;
-                        if(name.length > 7){
-                          show_name = name.slice(0, 6) + '...'
-                        }else{
-                          show_name = name;
-                        }
-                        return(
-                          <Card key={uuid()} className={classes.player} elevation={5}>
-                            <CardContent>
-                              <HorizontalLayout>
-                                <CardMedia
-                                  component='img'
-                                  height='80'
-                                  image='/img/test1.png' className={classes.player_img}/>
-                                <div>
-                                <Typography variant='h6' component='div'>
-                                  {show_name}
-                                </Typography>
-                                <Typography variant='body2'>
-                                  {/* {item.score} */}
-                                </Typography>
-                                </div>
-                              </HorizontalLayout>
-                            </CardContent>
-                          </Card>
-                        )
-                      })
+                  {(my_room.pnames)?.map((item)=>{ // score도 받아야함
+                      // const name = item.name;
+                      // const score = item.score;
+                      // let show_name;
+                      // let ready_state;
+
+                      // if(name.length > 7){
+                      //   show_name = name.slice(0, 6) + '...'
+                      // }
+                      // else{
+                      //   show_name = name
+                      // }
+
+                      // if(my_room.is_ready.includes(sessionStorage.getItem('nickname'))){
+                      //   ready_state = true;
+                      // }
+                      // else{
+                      //   ready_state = false;
+                      // }
+
+                    return(
+                      <Card key={uuid()} className={ready_state? ready_class.player: not_ready_class.player} elevation={5}>
+                        <CardContent>
+                          <HorizontalLayout>
+                            <CardMedia
+                              component='img'
+                              height='80'
+                              image='/img/test1.png' className={ready_state? ready_class.player_img : not_ready_class.player_img}/>
+                            <div>
+                            <Typography variant='h6' component='div'>
+                              {show_name}
+                            </Typography>
+                            <Typography variant='body2'>
+                              {/* {item.score} */}
+                            </Typography>
+                            </div>
+                          </HorizontalLayout>
+                        </CardContent>
+                      </Card>
+                    )
+                    })
                   }
                 </HorizontalLayout>
               </div>
@@ -297,13 +313,7 @@ export default function GamePage() {
           margin-bottom: 5px;
           overflow-y: scroll;
           overflow-x: hidden;
-          // border-left: 1px solid;
-          // border-top: 1px solid;
-          // border-bottom: 1px solid;
-          // border-color: ${Color.green_6};
-          // border-radius: 20px;
           background-color: ${Color.green_1};
-          //box-shadow: 1px 1px 1px 1px grey;
         }
         #chatting::-webkit-scrollbar {
           width: 5px;

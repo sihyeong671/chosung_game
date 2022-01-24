@@ -1,7 +1,5 @@
 // socket Handler
 import io from 'socket.io-client'
-import { updateDetailRoom, updateRoom } from '../data/roomdata';
-import { getRank } from '../data/userdata';
 
 export let socket;
 
@@ -25,23 +23,8 @@ export function connectSocket(){
     console.log('disconnect');
   })
 
-  // 방 업데이트
-  socket.on('update_room', (data)=>{
-    console.log('update-room');
-    console.log(data);
-    updateRoom(data);
-  })
-
-  socket.on('update_detail_room', (data)=>{
-    console.log('update-detail-room');
-    console.log(data);
-    updateDetailRoom(data);
-
-  })
-
-  socket.on('yourranking', (data)=>{
-    console.log(data);
-    getRank(data);
+  socket.on('send_room_id',(data)=>{
+    sessionStorage.setItem('room_id', data.room_id)
   })
 
 } 
