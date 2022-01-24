@@ -17,6 +17,7 @@ import { makeStyles } from "@mui/styles";
 import {Color} from "../utils/color/colors";
 import Link from 'next/link'
 import { ToastContainer, toast } from 'react-toastify';
+import CorrectToast from "../components/CorrectToast";
 
 
 
@@ -52,7 +53,8 @@ export default function GamePage() {
   const ready_class = useStyles_ready();
   let correct = true
   let max_second = 60
-  let set_timer
+  let set_timer;
+
   const [saveduser, set_saveduser] = useState('');
   const [round_start, set_round_start]= useState(false)
   const [problem, set_problem] = useState('')
@@ -63,18 +65,28 @@ export default function GamePage() {
   const [seconds, set_seconds] = useState(0)
   const [my_room, set_my_room] = useState({})
   const [score, set_score]= useState([])
+  const [toast_status, set_toast_status] = useState(false)
 
   useEffect(()=>{ //session storage에 저장된 user nickname 가져오기
     set_saveduser(sessionStorage.getItem('nickname'))
   } , [])
 
-  useEffect(()=>{ // socket listener
+  useEffect(() => { //timer 시간 set
+    socket.on('one_second', (data) =>{
+      set_seconds(data.tick)
+      console.log(seconds);
+    })
+  }, [])
 
+  useEffect(()=>{ // socket listener
+    
     socket.on('round_start', (data)=>{
+      //test()
       set_round_start(true)
-      console.log('round_start: ' + round_start)
+      //console.log('round_start: ' + round_start)
       set_problem(data.hint)
       console.log(problem)
+      //console.log(data.hint);
     })
 
     socket.on('hint_update', (data)=>{
@@ -86,6 +98,7 @@ export default function GamePage() {
       console.log('round_over')
       console.log(data);
       set_score(data.score);
+      set_round_start(false);
     })
     
     socket.on('wrong', (data) => { // 수정
@@ -98,7 +111,7 @@ export default function GamePage() {
       console.log('correct' + data.user)
       correct = true
       console.log('correct' + correct)
-      //toast("정답입니다!")
+      handletoast()
     })
 
     socket.on('update_detail_room', (data)=>{
@@ -108,6 +121,7 @@ export default function GamePage() {
 
     socket.on('game_over', (data) => {
       set_my_ready_state(false)
+      console.log(my_ready_state);
       console.log("게임 오버" + my_ready_state)
       set_btn_background(Color.green_6)
     })
@@ -124,35 +138,19 @@ export default function GamePage() {
     })
   }, [message_list])
   
-  //새로운 message 보낼 때 스크롤 위치
-  useEffect(() => {
+  
+  useEffect(() => { //새로운 message 보낼 때 스크롤 위치
     const chatting_view = document.getElementById('chatting')
     chatting_view.scrollBy({top:chatting_view.scrollHeight})
   }, [message_list])
-  
-  //timer 숫자 설정
-  // useEffect(() => {
 
-  //   if(round_start === true){
-  //     set_timer = setInterval(() => {
-  //       if(seconds === max_second){
-  //         set_seconds(0)
-  //         //handle round over
-  //       }
-  //       else{
-  //         set_seconds(seconds + 1)
-  //       }
-        
-  //       console.log(seconds)
-  //     }, 1000);
-  
-  //     return () => clearInterval(set_timer)
-  //   }
-    
-  // }, [seconds])
+  useEffect(() => { //toast 띄우기
+    if(toast_status === true){
+      setTimeout(() => set_toast_status(false), 1000)
+    }
+  }, [toast_status])
 
-
-  const handleready = () =>{
+  const handleready = () =>{  //준비하기 클릭 시
     if(my_ready_state === false){
       set_my_ready_state(true)
       socket.emit('ready')
@@ -164,10 +162,7 @@ export default function GamePage() {
       socket.emit('cancel_ready')
       console.log("ready: " + my_ready_state)
       set_btn_background(Color.green_6)
-      //서버쪽에 보내서 처리 필요
     }
-    //console.log("ready: " + ready_state)
-    //ui 바뀌도록
   }
 
   const handlepost = (e) => { //채팅 입력했을 때
@@ -189,6 +184,9 @@ export default function GamePage() {
     console.log("exit")
   }
 
+  const handletoast = () => { //정답 시 toast status 설정
+    set_toast_status(true)
+  }
 
   return(         
     <>
@@ -301,7 +299,9 @@ export default function GamePage() {
             </VerticalLayout>
           </div>
         </VerticalLayout>
+        {/* <button onClick={() => {handletoast()}}>test</button> */}
       </div>
+      {toast_status && <CorrectToast className='correct_toast'/>}
       <style jsx>{`
         .game_page{
           height: 100%;
@@ -405,6 +405,7 @@ export default function GamePage() {
           cursor: pointer;
           background-color: ${Color.green_7};
         }
+        
       `}
       </style>
     </>
