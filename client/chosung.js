@@ -72,7 +72,7 @@ function extract_chosung(str){
 	return hstr;
 }
 
-const l=3;
+const l=6;
 let roomnumber=0;
 let rooms=[],roomSet=new Set();
 let weight=[70,55,45,30,20,10];
@@ -88,7 +88,7 @@ io.sockets.on('connection', (socket) => {
 	console.log(`Socket connected : ${socket.id}`)
 	let room_id=-1;//현재 방에 들어가있지 않음
 	let name;
-	let round_timerId=-1,hint_timerId=-1;
+	let round_timerId=-1,hint_timerId=-1,ticker_timerId=-1;
 
 	socket.on('get_room_list',(data)=>{// required : name
 		// name = data.name;
@@ -107,16 +107,21 @@ io.sockets.on('connection', (socket) => {
 
 	socket.on('get_detail_room',(data)=>{
 		const rid = data.room_id;
-		console.log("room id:", rid);
+		console.log("get detail room ->room id:", rid);
+		if(!roomSet.has(rid)){
+			console.log("no such room");
+			socket.emit(`no_such_room`,{});
+			return;
+		}
 		let room = rooms[rid];
 		const detail_room_info = {
 			room_id:rid,
 			pnames:room.pnames,
 			is_ready:Array.from(room.is_ready)
 		}
-		console.log(detail_room_info);
+		//console.log(detail_room_info);
 		io.to(parseInt(rid)).emit('update_detail_room', detail_room_info);
-		console.log(io.sockets.adapter.rooms);
+		//console.log(io.sockets.adapter.rooms);
 	})
 
 	socket.on('getmystatus',(data)=>{// required : name
@@ -128,7 +133,7 @@ io.sockets.on('connection', (socket) => {
 			User.create({'name':name, score:0})
 			}
 			else score=person.score;			  
-			console.log(`getstatus ${username} : %d ;point`,score);
+			console.log(`getstatus ${name} : %d ;point`,score);
 			io.emit('yourstatus',{score:score});
 		})
 	})
@@ -147,6 +152,7 @@ io.sockets.on('connection', (socket) => {
   })
 
 	socket.on('exit_room',(data)=>{
+		console.log(`exit room!`);
 		handle_roomexit(room_id);
 	})
 
@@ -175,6 +181,10 @@ io.sockets.on('connection', (socket) => {
 	})
 
 	socket.on('enter_room', (data) => { // required : room_id(quick match면 -1), pw(안잠겼으면 "")
+		if(data.room_id!=-1 && rooms[data.room_id].is_in_game){
+			socket.emit('already_in_game',{});
+			return;
+		}
 		room_id = data.room_id;
 		name = data.user;
 		console.log(`enter room : id ${room_id} , name : ${name}`);
@@ -210,8 +220,15 @@ io.sockets.on('connection', (socket) => {
 			rooms[room_id].round=1;
 			rooms[room_id].is_in_game=true;
 			console.log(`room full, game start id : ${room_id}`);
-			handle_round_start(room_id);
+			handle_round_start();
 		}
+	})
+
+	socket.on('cancel_ready', (data) => {
+		rooms[room_id].is_ready.delete(name);
+		rooms[room_id].readycnt=rooms[room_id].is_ready.size;
+		send_update_room(room_id);
+		console.log(`cancel ready : name ${name}`);
 	})
 
 	socket.on('disconnect', () => {
@@ -221,20 +238,21 @@ io.sockets.on('connection', (socket) => {
 	})
 
 	socket.on('message',(data)=>{// required : name, content
+		console.log(`new message`);
+		console.log(data);
 		if(room_id==-1||rooms[room_id].is_in_game==false){
 			socket.to(room_id).emit('new_message',data);//그냥 echo
-			console.log(data);
 			// socket.emit('new_message',data);
 			return;
 		}
 		if(data.content!=rooms[room_id].answer){
 			socket.to(room_id).emit('new_message',data);
-			socket.to(room_id).emit('wrong',{user:name});
+			socket.emit('wrong',{user:name});
 			return;
 		}
 		if(rooms[room_id].winner.includes(name))return;
 		rooms[room_id].winner.push(name);
-		socket.to(room_id).emit('correct',{user:name});
+		io.to(room_id).emit('correct',{user:name});
 		if(rooms[room_id].winner.length>=rooms[room_id].rcnt){
 			handle_roundover();
 		}
@@ -249,8 +267,12 @@ io.sockets.on('connection', (socket) => {
 		rooms[room_id].readycnt=rooms[room_id].is_ready.size;
 		socket.leave(room_id);
 		io.to(room_id).emit('leave',{user:name});
+		console.log(`${name} left room ${room_id}`);
 		send_update_room(room_id);
 		if(rooms[room_id].rcnt<=0){
+			clearInterval(hint_timerId);
+			clearTimeout(round_timerId);
+			clearInterval(ticker_timerId);
 			roomSet.delete(room_id);
 		}
 		room_id=-1;
@@ -273,14 +295,23 @@ io.sockets.on('connection', (socket) => {
 		send_update_room(room_id);
 	}
 
-	function handle_round_start(room_id){
+	function handle_round_start(){
+		if(room_id==-1||rooms[room_id].rcnt<=0)return;
 		console.log(`new round`);
-		let rd=crypto.randomInt(10760);
+		let rd=crypto.randomInt(1,612);
+		console.log(`selected rd : ${rd}`);
 		Sokdam.findOne({id:rd},(err,sokdam)=>{
+			console.log(`findone`);
 			if(err)return handleError(err);
 			round=rooms[room_id].round
+			console.log('timersetting');
+			clearInterval(hint_timerId);
+			clearTimeout(round_timerId);
+			clearInterval(ticker_timerId);
 			round_timerId=setTimeout(handle_timeout,60000);
-			hint_timerId=setInterval(handle_hint,5000);
+			hint_timerId=setInterval(handle_hint,3000);
+			ticker_timerId=setInterval(handle_tick,1000);
+			rooms[room_id].sec=0;
 			rooms[room_id].answer=sokdam.content;
 			rooms[room_id].meaning=sokdam.meaning;
 			rooms[room_id].winner=[];
@@ -297,6 +328,7 @@ io.sockets.on('connection', (socket) => {
 		console.log(`handling round over`);
 		clearInterval(hint_timerId);
 		clearTimeout(round_timerId);
+		clearInterval(ticker_timerId);
 		let i=0;
 		for(let person of rooms[room_id].winner){
 			v=0;
@@ -306,15 +338,16 @@ io.sockets.on('connection', (socket) => {
 		}
 		rooms[room_id].winner=[];
 		rooms[room_id].hint="";
-		rooms[room_id].answer="";
 		rooms[room_id].round++;
+		console.log(`emitting round_over`);
 		io.to(room_id).emit('round_over',{
 			answer:rooms[room_id].answer,
 			score:Array.from(rooms[room_id].score, ([name, value]) => ({ name, value }) ),
 			meaning:rooms[room_id].meaning
 		})
+		rooms[room_id].answer="";
 		if(rooms[room_id].round<=2*rooms[room_id].rcnt){
-			setTimeout(handle_round_start(room_id),1000);
+			setTimeout(()=>{handle_round_start()},2000);
 			return;
 		}
 		handle_gameover();
@@ -331,8 +364,8 @@ io.sockets.on('connection', (socket) => {
 			return va-vb;
 		})//오름차순
 
-		for(i=0;i<pnames.length;i++){
-			person=pnames[i];
+		for(i=0;i<rooms[room_id].pnames.length;i++){
+			person=rooms[room_id].pnames[i];
 			User.findOneAndUpdate({"name":person},{$inc:{"score":(i+1)*10}}).then(()=>
 				User.findOne({"name":person})
 			)
@@ -372,6 +405,10 @@ io.sockets.on('connection', (socket) => {
 		io.to(room_id).emit('hint_update',{
 			hint:rooms[room_id].hint
 		})
+	}
+	function handle_tick(){
+		rooms[room_id].sec+=1;
+		io.to(room_id).emit(`one_second`,{tick:rooms[room_id].sec});
 	}
 })
 
