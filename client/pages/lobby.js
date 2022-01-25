@@ -281,11 +281,13 @@ export default function Lobby(){
             justify-content: center;
           }
           .make_room_btn{
+            
+            font-family: "KATURI";
             background-color: ${Color.green_6};
             border: none;
             padding: 5px 16px;
             color: white;
-            font-size: 20px;
+            font-size: 25px;
             font-weight: bold;
             margin-right: 10px;
           }
@@ -294,15 +296,17 @@ export default function Lobby(){
             background-color: ${Color.green_7} 
           }
           .quick_enter_btn{
+            font-family: "KATURI";
             background-color: ${Color.green_6};
             border: none;
             padding: 5px 16px;
             color: white;
-            font-size: 20px;
+            font-size: 25px;
             font-weight: bold;
             margin-right: 10px;
           }
           .quick_enter_btn:hover{
+            
             cursor: pointer;
             background-color: ${Color.green_7};
           }
