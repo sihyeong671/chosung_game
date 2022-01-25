@@ -99,11 +99,15 @@ export default function CreateRoom(props){
             padding: 10px;
           }
           .room_name_label{
+            margin-left: 7.15rem; 
+            font-size: 1.5rem;
             margin-top:10px;
             margin-bottom:30px;
             font-weight: bold;
           }
           .room_name{
+            font-family: "KATURI";
+            font-size:1.5rem;
             margin-top: 10px;
             margin-bottom: 10px;
             width: 97%;
@@ -113,14 +117,14 @@ export default function CreateRoom(props){
             margin-bottom: 20px;
           }
           .toggle input[type="checkbox"]{
-            margin:10px;
+            margin:15px;
             position:relative;
-            width:30px;
-            height:10px;
+            width:35px;
+            height:15px;
             -webkit-appearance: none;
             background: linear-gradient(to right, ${Color.green_5}, ${Color.green_8});
             outline: none;
-            border-radius: 20px;
+            border-radius: 30px;
           }
           .toggle input:checked[type="checkbox"]:nth-of-type(1) {
             background: linear-gradient(to right, ${Color.green_1}, ${Color.green_3});
@@ -131,23 +135,23 @@ export default function CreateRoom(props){
             top:0;
             left:0;
             width:20px;
-            height:10px;
+            height:15px;
             background: linear-gradient(0deg, ${Color.green_5}, ${Color.green_6});
-            border-radius: 5px;
+            border-radius: 11.25px;
             transform: scale(.98,.96);
             transition:.5s;
           }
 
           .toggle input:checked[type="checkbox"]:before {
-            left:10px;
+            left:15px;
           }
           .toggle input[type="checkbox"]:after{
             content:'';
             position:absolute;
             top:calc(50% - 2px);
-            left:17.5px;
-            width:0.25px;
-            height:0.25px;
+            left:26.25px;
+            width:0.375px;
+            height:0.375px;
             background: linear-gradient(to bottom, ${Color.green_1}, ${Color.green_5});
             border-radius: 50%;
             transition:.5s;
@@ -156,11 +160,9 @@ export default function CreateRoom(props){
           .toggle input:checked[type="checkbox"]:after {
             left:27.5px;
           }
-          .pw_btn{
-            margin: auto;
-            width: 15%;
-          }
           .pw_input{
+            font-family: "KATURI";
+            font-size:1.5rem;
             margin: auto;
             width: 80%;
           }
@@ -169,7 +171,8 @@ export default function CreateRoom(props){
             border: none;
             padding: 5px 16px;
             color: white;
-            font-size: 20px;
+            font-size: 25px;
+            font-family: "KATURI";
             font-weight: bold;
             margin:auto;
           }
@@ -182,7 +185,8 @@ export default function CreateRoom(props){
             border: none;
             padding: 5px 16px;
             color: white;
-            font-size: 20px;
+            font-size: 25px;
+            font-family: "KATURI";
             font-weight: bold;
             margin:auto;
           }
