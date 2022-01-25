@@ -16,7 +16,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-const useStyles_not_ready = makeStyles({
+const useStyles_not_ready = makeStyles({ //player card not ready style
   player: {
     margin: 'auto',
     backgroundColor: Color.yellow_1,
@@ -27,7 +27,7 @@ const useStyles_not_ready = makeStyles({
   }
 })
 
-const useStyles_ready = makeStyles({
+const useStyles_ready = makeStyles({  //player car ready style
   player: {
     margin: 'auto',
     backgroundColor: Color.green_3,
@@ -39,16 +39,11 @@ const useStyles_ready = makeStyles({
 })
 
 
-//for test
-// connectSocket()
-
 export default function GamePage() {
 
   const not_ready_class = useStyles_not_ready();
   const ready_class = useStyles_ready();
   let correct = true
-  let max_second = 60
-  let set_timer;
 
   const [saveduser, set_saveduser] = useState('');
   const [round_start, set_round_start]= useState(false)
@@ -60,7 +55,8 @@ export default function GamePage() {
   const [seconds, set_seconds] = useState(0)
   const [my_room, set_my_room] = useState({})
   const [score, set_score]= useState([])
-  const [toast_status, set_toast_status] = useState(false)
+  const [meaning, set_meaning] = useState('')
+  const [correct_person, set_correct_person] = useState('')
 
   useEffect(()=>{ //session storage에 저장된 user nickname 가져오기
     set_saveduser(sessionStorage.getItem('nickname'))
@@ -69,59 +65,76 @@ export default function GamePage() {
   useEffect(() => { //timer 시간 set
     socket.on('one_second', (data) =>{
       set_seconds(data.tick)
-      console.log(seconds);
+      // console.log(seconds);
     })
   }, [])
 
-  useEffect(()=>{ // socket listener
-    
+  useEffect(() => { //correct event
+    socket.on('correct', (data) => { // 수정
+      console.log('correct' + data.user)
+      correct = true
+      console.log('correct' + correct)
+      toast(`${data.user}가 정답을 맞췄습니다!`)
+      // set_correct_person(data.user)
+    })
+  }, [])
+
+  useEffect(() => { //round start event
     socket.on('round_start', (data)=>{
       //test()
+      set_meaning('')
       set_round_start(true)
       //console.log('round_start: ' + round_start)
       set_problem(data.hint)
-      console.log(problem)
+      // console.log(problem)
       //console.log(data.hint);
     })
+  }, [])
 
+  useEffect(() => { //hint update event
     socket.on('hint_update', (data)=>{
       set_problem(data.hint)
       console.log(problem)
     })
+  }, [])
 
+  useEffect(() => { //round over event
     socket.on('round_over', (data)=>{ // 수정
       console.log('round_over')
       console.log(data);
       set_score(data.score);
       set_round_start(false);
+      set_problem(data.answer)
+      set_meaning(data.meaning)
     })
-    
-    socket.on('wrong', (data) => { // 수정
+  }, [])
+
+  useEffect(() => { //wrong event
+    socket.on('wrong', (data) => {
       console.log('wrong' + data.user)
       correct = false
       console.log('correct' + correct)
     })
+  }, [])
 
-    socket.on('correct', (data) => { // 수정
-      console.log('correct' + data.user)
-      correct = true
-      console.log('correct' + correct)
-      
-      toast(`${data.user}가 정답을 맞췄습니다!`)
-    })
-
+  useEffect(() => { //update detail room event
     socket.on('update_detail_room', (data)=>{
       console.log(data);
       set_my_room(data);
     })
+  }, [])
 
+  useEffect(() => { //game over event
     socket.on('game_over', (data) => {
       set_my_ready_state(false)
       console.log(my_ready_state);
       console.log("게임 오버" + my_ready_state)
       set_btn_background(Color.green_6)
+      toast("게임 종료!")
     })
+  }, [])
 
+  useEffect(()=>{ // get detail room
     socket.emit('get_detail_room', {
       room_id : parseInt(sessionStorage.getItem('room_id'))
     })
@@ -140,45 +153,40 @@ export default function GamePage() {
     chatting_view.scrollBy({top:chatting_view.scrollHeight})
   }, [message_list])
 
-  useEffect(() => { //toast 띄우기
-    // if(toast_status === true){
-    //   setTimeout(() => set_toast_status(false), 1000)
-    // }
-  }, [toast_status])
-
   const handleready = () =>{  //준비하기 클릭 시
     if(my_ready_state === false){
       set_my_ready_state(true)
       socket.emit('ready')
-      console.log("ready: " + my_ready_state)
+      // console.log("ready: " + my_ready_state)
       set_btn_background(Color.yellow_6)
     }
     else{
       set_my_ready_state(false)
       socket.emit('cancel_ready')
-      console.log("ready: " + my_ready_state)
+      // console.log("ready: " + my_ready_state)
       set_btn_background(Color.green_6)
     }
   }
 
   const handlepost = (e) => { //채팅 입력했을 때
     e.preventDefault()
-    console.log(saveduser);
+    // console.log(saveduser);
     const temp = {
       user: saveduser,
       content: message
     }
     sendMessage(temp)
-    console.log(message)
+    // console.log(message)
     set_message_list([...message_list, temp])
-    console.log(message_list)
+    // console.log(message_list)
     set_message('')
   }
 
   const handleexit = (e) => { //나가기 버튼 클릭 시
     socket.emit('exit_room')
-    console.log("exit")
+    // console.log("exit")
   }
+
 
   return(         
     <>
@@ -190,18 +198,29 @@ export default function GamePage() {
           <div>
             <div className='question'>
               <span className='question_text'>{problem}</span>
-              {/*<span className='question_text'>ㅊ ㄹ ㄱㄷ ㅎ ㄱㅇㅂㅌ</span>*/}
+            </div>
+            <div className='meaning'>
+              <span className='meaning_text'>{meaning}</span>
             </div>
           </div>
           <div>
             <VerticalLayout>
               <div className='set_player'>
                 <HorizontalLayout>
-                  {(my_room.pnames)?.map((name)=>{ // score도 받아야함
+                  {(my_room.pnames)?.map((name)=>{
 
                       let show_name;
                       let ready_state;
                       let my_score = 0;
+                      let img_num = 1;
+
+                      for(let i = 0; i< name.length; i++){
+                        let c = name.charCodeAt(i)
+                        img_num = img_num * 256 + c
+                        img_num = img_num % 7 + 1
+                      }
+
+                      console.log(img_num)
 
                       if(name.length > 7){ // 이름
                         show_name = name.slice(0, 6) + '...'
@@ -231,7 +250,7 @@ export default function GamePage() {
                             <CardMedia
                               component='img'
                               height='80'
-                              image='/img/character_1.png' className={ready_state? ready_class.player_img : not_ready_class.player_img}/>
+                              image={`/img/character_${img_num}.png`} className={ready_state? ready_class.player_img : not_ready_class.player_img}/>
                             <div>
                             <Typography variant='h6' component='div'>
                               {show_name}
@@ -291,11 +310,9 @@ export default function GamePage() {
             </VerticalLayout>
           </div>
         </VerticalLayout>
-          {/* <button onClick={() => {handletoast()}}>test</button> */}
       </div>
-      {/* {toast_status && <CorrectToast correct_player={saveduser} className='correct_toast'/>} */}
-      <ToastContainer
-        closeOnClick/>
+      {/* {correct ? toast(`${correct_person}가 정답을 맞췄습니다!`) : null} */}
+      <ToastContainer closeOnClick/>
       <style jsx>{`
         .game_page{
           height: 100%;
@@ -303,21 +320,28 @@ export default function GamePage() {
         .progress_bar{
           height: 5vh;
           width: 100%;
+          //margin-bottom 16px;
           padding-top: 5px;
           padding-bottom: 5px;
         }
         .question{
-          display: table;
-          height: 24vh;
+          //display: table;
+          height: 10vh;
           margin: auto;
           text-align: center;
         }
         .question_text{
-          display: table-cell;
+          //display: table-cell;
           vertical-align: middle;
           font-size: 50px;
           font-weight: bold;
-          padding-bottom: 10px;
+          padding-top: 10px;
+        }
+        .meaning{
+          height: 10vh;
+          text-align :center;
+          margin-bottom: 16px;
+          margint-top: 16px;
         }
         .set_player{
           margin-bottom: 16px;
