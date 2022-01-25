@@ -64,7 +64,7 @@ export default function Home() {
               </marquee>
           </div>
           <div className='main_title'>
-            천 리길도 한 걸음 부터
+            천 리 길도 한 걸음 부터
           </div>
           <div className='login_wrapper'>
             <Link href={'/lobby'}>
