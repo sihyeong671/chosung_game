@@ -81,6 +81,7 @@ function extract_chosung(str){
 const l=6;
 let roomnumber=0;
 let rooms=[],roomSet=new Set();
+let interval_ids = [],timeout_ids = [];
 let weight=[70,55,45,30,20,10];
 /*
 room 속성
@@ -98,6 +99,7 @@ io.sockets.on('connection', (socket) => {
 
 	socket.on('get_room_list',(data)=>{// required : name
 		// name = data.name;
+		console.log('get room list');
 		for(let rid of roomSet){// 처음 들어왔을때 모든 방 정보를 그 소켓에만 보내기
 			let room=rooms[rid];
 			const room_info={
@@ -105,8 +107,10 @@ io.sockets.on('connection', (socket) => {
 				room_title:room.title,
 				room_cnt:room.rcnt,
 				room_readycnt:room.readycnt,
-				is_lock: room.is_lock
+				is_lock: room.is_lock,
+				is_in_game:room.is_in_game
 			}
+			console.log(`get room list, id : ${rid}`);
 			socket.emit(`update_room`,room_info);
 		}
 	})
@@ -131,6 +135,10 @@ io.sockets.on('connection', (socket) => {
 	})
 
 	socket.on('getmystatus',(data)=>{// required : name
+		if(data.name==null){
+			console.log(`no user specified in get_status`);
+			return;
+		}
 		name = data.name;
 		User.findOne({ 'name': name }, function (err, person) {
 			if (err) return handleError(err);
@@ -140,7 +148,7 @@ io.sockets.on('connection', (socket) => {
 			}
 			else score=person.score;			  
 			console.log(`getstatus ${name} : %d : point`,score);
-			io.emit('yourstatus',{score:score});
+			socket.emit('yourstatus',{score:score});
 		})
 	})
 	
@@ -152,15 +160,16 @@ io.sockets.on('connection', (socket) => {
         stats:docs,
         length:docs.length
       }
-      io.emit('yourranking',msg);
+      socket.emit('yourranking',msg);
       console.log(`${docs.length} docs have been transferred`);
-	  console.log(docs);
     })
   })
 
 	socket.on('exit_room',(data)=>{
 		console.log(`exit room!`);
-		handle_roomexit(room_id);
+		if(room_id!=null&&room_id!=undefined&&room_id!=-1){
+			handle_roomexit(room_id);
+		}
 	})
 
 	socket.on('make_room', (data) => {// required : (user)name, title, is_lock, pw
@@ -177,7 +186,10 @@ io.sockets.on('connection', (socket) => {
 			is_ready:new Set(),
 			readycnt:0,
 			score:new Map(),
-			is_in_game:false
+			is_in_game:false,
+			round_timerId:-1,
+			ticker_timerId:-1,
+			hint_timerId:-1
 		}
 		// console.log(rooms[room_id]);
 		console.log(`room made! : id ${room_id} , title ${data.title}`);
@@ -219,6 +231,10 @@ io.sockets.on('connection', (socket) => {
 	})
 
 	socket.on('ready', (data) => {
+		if(room_id==null||(!roomSet.has(room_id))){
+			console.log(`name : ${name} , can't ready, no room id`);
+			return;
+		}
 		rooms[room_id].is_ready.add(name);
 		rooms[room_id].readycnt=rooms[room_id].is_ready.size;
 		send_update_room(room_id);
@@ -226,6 +242,7 @@ io.sockets.on('connection', (socket) => {
 		if(rooms[room_id].readycnt==rooms[room_id].rcnt){
 			rooms[room_id].round=1;
 			rooms[room_id].is_in_game=true;
+			send_update_room(room_id);
 			console.log(`room full, game start id : ${room_id}`);
 			handle_round_start();
 		}
@@ -266,6 +283,7 @@ io.sockets.on('connection', (socket) => {
 	})
 
 	function handle_roomexit(room_id){
+		if(room_id==null||(!roomSet.has(room_id)))return;
 		rooms[room_id].rcnt--;
 		pset=new Set(rooms[room_id].pnames);
 		pset.delete(name);
@@ -277,9 +295,9 @@ io.sockets.on('connection', (socket) => {
 		console.log(`${name} left room ${room_id}`);
 		send_update_room(room_id);
 		if(rooms[room_id].rcnt<=0){
-			clearInterval(hint_timerId);
-			clearTimeout(round_timerId);
-			clearInterval(ticker_timerId);
+			clearInterval(rooms[room_id].hint_timerId);
+			clearTimeout(rooms[room_id].round_timerId);
+			clearInterval(rooms[room_id].ticker_timerId);
 			roomSet.delete(room_id);
 		}
 		room_id=-1;
@@ -314,12 +332,12 @@ io.sockets.on('connection', (socket) => {
 				if(err)return handleError(err);
 				round=rooms[room_id].round
 				console.log('timersetting');
-				clearInterval(hint_timerId);
-				clearTimeout(round_timerId);
-				clearInterval(ticker_timerId);
-				round_timerId=setTimeout(handle_timeout,60000);
-				hint_timerId=setInterval(handle_hint,3000);
-				ticker_timerId=setInterval(handle_tick,1000);
+				clearInterval(rooms[room_id].hint_timerId);
+				clearTimeout(rooms[room_id].round_timerId);
+				clearInterval(rooms[room_id].ticker_timerId);
+				rooms[room_id].round_timerId=setTimeout(handle_timeout,60000);
+				rooms[room_id].hint_timerId=setInterval(handle_hint,3000);
+				rooms[room_id].ticker_timerId=setInterval(handle_tick,1000);
 				rooms[room_id].sec=0;
 				rooms[room_id].answer=sokdam.content;
 				rooms[room_id].meaning=sokdam.meaning;
@@ -341,12 +359,12 @@ io.sockets.on('connection', (socket) => {
 				if(err)return handleError(err);
 				round=rooms[room_id].round
 				console.log('timersetting');
-				clearInterval(hint_timerId);
-				clearTimeout(round_timerId);
-				clearInterval(ticker_timerId);
-				round_timerId=setTimeout(handle_timeout,60000);
-				hint_timerId=setInterval(handle_hint,3000);
-				ticker_timerId=setInterval(handle_tick,1000);
+				clearInterval(rooms[room_id].hint_timerId);
+				clearTimeout(rooms[room_id].round_timerId);
+				clearInterval(rooms[room_id].ticker_timerId);
+				rooms[room_id].round_timerId=setTimeout(handle_timeout,60000);
+				rooms[room_id].hint_timerId=setInterval(handle_hint,3000);
+				rooms[room_id].ticker_timerId=setInterval(handle_tick,1000);
 				rooms[room_id].sec=0;
 				rooms[room_id].answer=analect.content;
 				rooms[room_id].meaning=analect.meaning;
@@ -363,9 +381,9 @@ io.sockets.on('connection', (socket) => {
 	}
 	function handle_roundover(){
 		console.log(`handling round over`);
-		clearInterval(hint_timerId);
-		clearTimeout(round_timerId);
-		clearInterval(ticker_timerId);
+		clearInterval(rooms[room_id].hint_timerId);
+		clearTimeout(rooms[room_id].round_timerId);
+		clearInterval(rooms[room_id].ticker_timerId);
 		let i=0;
 		for(let person of rooms[room_id].winner){
 			v=0;
@@ -384,7 +402,7 @@ io.sockets.on('connection', (socket) => {
 		})
 		rooms[room_id].answer="";
 		if(rooms[room_id].round<=3*rooms[room_id].rcnt){
-			setTimeout(()=>{handle_round_start()},6000);
+			setTimeout(handle_round_start,6000);
 			return;
 		}
 		handle_gameover();
@@ -458,8 +476,10 @@ function send_update_room(room_id){
 		room_title:room.title,
 		room_cnt:room.rcnt,
 		room_readycnt:room.readycnt,
-		room_is_lock:room.is_lock
+		room_is_lock:room.is_lock,
+		room_is_in_game:room.is_in_game
 	}
+	console.log(`room update sent, id : ${room_id}, rcnt : ${room.rcnt}`);
 	io.emit(`update_room`,room_info);
 	const room_detail={
 		room_id:room_id,
