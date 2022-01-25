@@ -62,8 +62,6 @@ export default function Home() {
                 </div>
                 </HorizontalLayout>
               </marquee>
-              
-            
           </div>
           <div className='main_title'>
             천 리길도 한 걸음 부터

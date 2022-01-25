@@ -70,8 +70,6 @@ export default function Lobby(){
   const [rooms, set_rooms] = useState({})
   const [user_infos, set_user_infos] = useState([])
   const [my_score, set_my_score] = useState('')
-  const [my_stat, set_my_stat] = useState('')
-
 
   const off_modal = () => {
     set_show_modal(false)
@@ -80,22 +78,37 @@ export default function Lobby(){
   const roomListUpdate = () => {
     const temp = []
 
-  for(const [k, v] of Object.entries(rooms)){
-    temp.push(
-      <Room
-        key={uuid()}
-        room_id={parseInt(k)}
-        room_title={v.title}
-        room_cnt={v.rcnt}
-        is_in_game={v.is_in_game}
-        is_lock = {v.is_lock}
-      />
-    )
+    for(const [k, v] of Object.entries(rooms)){
+      temp.push(
+        <Room
+          key={uuid()}
+          room_id={parseInt(k)}
+          room_title={v.title}
+          room_cnt={v.rcnt}
+          is_in_game={v.is_in_game}
+          is_lock = {v.is_lock}
+        />
+      )
+    }
+    set_room_list(temp);
   }
-  set_room_list(temp);
-  }
+
+  const sorted_infos = user_infos.sort((a, b) => {
+    return b.score - a.score
+  })
+
+  let index = 0
+
+  sorted_infos.forEach((user) => {
+    if(user.name === sessionStorage.getItem('nickname')){
+      my_info = index + 1
+    }
+    else{
+      index++
+    }
+  })
   
-  useEffect( ()=>{
+  useEffect( ()=>{  //update room
     socket.on('update_room', (data)=>{
       
       if(data.room_cnt > 0 && !rooms.hasOwnProperty(data.room_id)){ // 생성
@@ -114,20 +127,21 @@ export default function Lobby(){
         set_rooms({...rooms})
         roomListUpdate()
       }
-    })
+    })    
+  },[])
 
+  useEffect( ()=>{
     socket.emit('get_room_list')
-
-    
-    
-    
   },[])
 
   useEffect(() => {
     const temp_name = sessionStorage.getItem('nickname')
-
+    console.log(temp_name);
     socket.emit('getmystatus', {name: temp_name})
-    socket.emit('getranking')
+  }, [])
+
+  useEffect(() => {
+    setTimeout(() => {socket.emit('getranking')}, 1000)
   }, [])
 
   useEffect(() => {
@@ -141,6 +155,7 @@ export default function Lobby(){
 
     socket.on('yourranking', (data) => {
       set_user_infos(data.stats)
+      console.log(data);
     })
   }, [user_infos])
 
@@ -152,20 +167,7 @@ export default function Lobby(){
   //   socket.emit('enter_room', info)
   // }
   
-  const sorted_infos = user_infos.sort((a, b) => {
-    return b.score - a.score
-  })
-
-  let index = 0
-
-  sorted_infos.forEach((user) => {
-    if(user.name === sessionStorage.getItem('nickname')){
-      my_info = index + 1
-    }
-    else{
-      index++
-    }
-  })
+  
 
   return(
     <>

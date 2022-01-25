@@ -291,6 +291,15 @@ export default function GamePage() {
                   <div id='chatting'>
                     {
                       message_list?.map((msg) => {
+                        let show_name
+                        
+                        if(msg.user.length > 7){ // 이름
+                          show_name = msg.user.slice(0, 6) + '...'
+                        }
+                        else{
+                          show_name = msg.user
+                        }
+
                         if(msg.user === saveduser){
                           console.log("me " + saveduser)
                           return(
@@ -303,7 +312,11 @@ export default function GamePage() {
                           console.log("you")
                           return(
                             <div key={uuid()}>
-                              <span  className='other_message'>{msg.content}</span>
+                              <HorizontalLayout>
+                                <div className='name'>{show_name}</div>
+                                <span className='other_message'>{msg.content}</span>
+                              </HorizontalLayout>
+                              
                             </div>
                           )
                         }
@@ -391,6 +404,10 @@ export default function GamePage() {
           background-color: ${Color.green_4};
           padding: 10px;
           margin: 10px;
+        }
+        .name{
+          padding-left: 8px;
+          padding-top: 25px;
         }
         .other_message{
           float: left;
