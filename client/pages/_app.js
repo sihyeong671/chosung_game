@@ -1,10 +1,15 @@
 import Layout from '../components/Layout'
+import { motion } from "framer-motion";
+import '../styles/globals.css'
+import { AnimatePresence } from 'framer-motion';
+function MyApp({ Component, pageProps, router }) {
 
-function MyApp({ Component, pageProps }) {
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <AnimatePresence>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </AnimatePresence>
   )
 }
 

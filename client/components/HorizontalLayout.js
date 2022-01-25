@@ -4,7 +4,7 @@ const layout_horizontal = {
   flexDirection: 'row',
   width: '100%',
   height: '100%',
-  border: 'solid 1px',
+  //border: 'solid 1px',
 }
 
 export default function HorizontalLayout({ children }){

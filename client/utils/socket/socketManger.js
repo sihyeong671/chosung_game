@@ -1,7 +1,5 @@
 // socket Handler
 import io from 'socket.io-client'
-import { updateDetailRoom, updateRoom } from '../data/roomdata';
-import { getRank } from '../data/userdata';
 
 export let socket;
 
@@ -25,9 +23,8 @@ export function connectSocket(){
     console.log('disconnect');
   })
 
-  socket.on('yourranking', (data)=>{
-    console.log(data);
-    getRank(data);
+  socket.on('send_room_id',(data)=>{
+    sessionStorage.setItem('room_id', data.room_id)
   })
 
 } 
@@ -42,11 +39,8 @@ export function connectSocket(){
 
 export function sendMessage(state){
   console.log(state)
-  socket.emit('message', {content: state.message, user: state.user})
+  socket.emit('message', {content: state.content, user: state.user})
 }
 
-export function ready(){
-  socket.emit('ready')
-}
 
 
