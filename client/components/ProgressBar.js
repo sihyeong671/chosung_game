@@ -5,6 +5,14 @@ const ProgressBar = (props) => {
   const { second } = props
 
   let second_percent = ((60-second)/60) *100
+  let filler_color = Color.green_5
+
+  if((60 - second) < 10){
+    filler_color = Color.red_1
+    console.log(filler_color)
+  } else if((60 - second) < 25){
+    filler_color = Color.orange_1
+  }
   
   const secondfiller = {
     width: `${ second_percent }%`
@@ -26,7 +34,7 @@ const ProgressBar = (props) => {
         }
         .filler{
           height: 100%;
-          background-color: ${Color.green_4};
+          background-color: ${filler_color};
           border-radius: inherit;
           padding: 5px;
           text-align: right;
