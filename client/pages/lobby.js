@@ -2,7 +2,6 @@
 import uuid from 'react-uuid'
 import Button from '@mui/material/Button'
 import { useEffect, useState } from 'react'
-
 import UserCard from '../components/UserCard'
 import Room from '../components/Room'
 import Link from 'next/link'
@@ -40,6 +39,8 @@ function PrevArrow(props){
 }
 
 export default function Lobby(){
+
+  let my_info
   const settings = {
     dots: true,
     infinite: false,
@@ -55,6 +56,7 @@ export default function Lobby(){
   const [rooms, set_rooms] = useState({})
   const [user_infos, set_user_infos] = useState([])
   const [my_score, set_my_score] = useState('')
+  const [my_stat, set_my_stat] = useState('')
 
 
   const off_modal = () => {
@@ -79,9 +81,7 @@ export default function Lobby(){
   set_room_list(temp);
   }
   
-  
-  useEffect(()=>{
-    
+  useEffect( ()=>{
     socket.on('update_room', (data)=>{
       
       if(data.room_cnt > 0 && !rooms.hasOwnProperty(data.room_id)){ // 생성
@@ -111,7 +111,7 @@ export default function Lobby(){
 
   useEffect(() => {
     const temp_name = sessionStorage.getItem('nickname')
-    
+
     socket.emit('getmystatus', {name: temp_name})
     socket.emit('getranking')
   }, [])
@@ -124,9 +124,9 @@ export default function Lobby(){
   }, [my_score])
 
   useEffect(() => {
+
     socket.on('yourranking', (data) => {
       set_user_infos(data.stats)
-      console.log("ranking" + data)
     })
   }, [user_infos])
 
@@ -140,6 +140,17 @@ export default function Lobby(){
   
   const sorted_infos = user_infos.sort((a, b) => {
     return b.score - a.score
+  })
+
+  let index = 0
+
+  sorted_infos.forEach((user) => {
+    if(user.name === sessionStorage.getItem('nickname')){
+      my_info = index + 1
+    }
+    else{
+      index++
+    }
   })
 
   return(
@@ -160,12 +171,15 @@ export default function Lobby(){
           <div className='my_rank'>
             <VerticalLayout>
               <div>
-                내 랭킹
+                내 랭킹 
+              </div>
+              <div>
+                {sessionStorage.getItem('nickname')}
               </div>
               <div>
                 <HorizontalLayout>
                   <div className='my_place'>
-                    {/* n위 */}
+                    {my_info}위
                   </div>
                   <div className='my_score'>
                     {my_score}점
@@ -181,13 +195,9 @@ export default function Lobby(){
                 set_show_modal(true)
               }}variant="contained">방 만들기</button>
             <Link href="/GamePage">
-              <button 
-                className='quick_enter_btn'
-                onClick={()=>{
-                  quickEnter()
-                }} 
-                variant="contained"
-                disabled>빠른 입장</button>
+              <button className='quick_enter_btn' onClick={()=>{
+                quickEnter()
+              }} variant="contained">빠른 입장</button>
             </Link>
           </div>
           <div className='slider'>
@@ -295,4 +305,3 @@ export default function Lobby(){
     </>
   )
 }
-

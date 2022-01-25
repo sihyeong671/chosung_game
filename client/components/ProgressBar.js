@@ -4,7 +4,7 @@ import { Color } from "../utils/color/colors";
 const ProgressBar = (props) => {
   const { second } = props
 
-  let second_percent = (second/60) *100
+  let second_percent = ((60-second)/60) *100
   
   const secondfiller = {
     width: `${ second_percent }%`
@@ -14,7 +14,7 @@ const ProgressBar = (props) => {
     <>
       <div className='container'>
         <div className='filler' style={secondfiller}>
-          <span className='label'>{`${second}`}</span>
+          <span className='label'>{`${60-second}`}</span>
         </div>
       </div>
       <style jsx>{`

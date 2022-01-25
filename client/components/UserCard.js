@@ -10,7 +10,6 @@ export default function UserCard({idx, user_info}){
         {rank}
       </div>
       <div className="name">
-        
         {nick_name}
       </div>
       <div className="score">
