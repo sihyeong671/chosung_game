@@ -28,7 +28,6 @@ export default function CreateRoom(props){
       pw: lock_number.toString(),
       is_lock: lock
     }
-    console.log(info.is_lock)           
     socket.emit('make_room', info)
   }
 
@@ -99,10 +98,11 @@ export default function CreateRoom(props){
             padding: 10px;
           }
           .room_name_label{
-            margin-left: 7.15rem; 
+            display: flex;
+            justify-content:center;
             font-size: 1.5rem;
             margin-top:10px;
-            margin-bottom:30px;
+            margin-bottom:10px;
             font-weight: bold;
           }
           .room_name{

@@ -40,7 +40,7 @@ function PrevArrow(props){
 }
 
 export default function Lobby(){
-
+  console.log('로비 렌더링');
   let my_info
 
   const settings = {
@@ -67,7 +67,7 @@ export default function Lobby(){
 
   const [show_modal, set_show_modal] = useState(false)
   const [room_list, set_room_list] = useState([])
-  const [rooms, set_rooms] = useState({})
+  const [rooms, set_rooms] = useState([])
   const [user_infos, set_user_infos] = useState([])
   const [my_score, set_my_score] = useState('')
 
@@ -76,6 +76,7 @@ export default function Lobby(){
   }
 
   const roomListUpdate = () => {
+    console.log("업데이트 실행");
     const temp = []
 
     for(const [k, v] of Object.entries(rooms)){
@@ -110,34 +111,58 @@ export default function Lobby(){
   
   useEffect( ()=>{  //update room
     socket.on('update_room', (data)=>{
-      
+      console.log(data);
+      console.log(rooms);
+      console.log(rooms[4]);
+      console.log(rooms['4']);
+      console.log('1',rooms.hasOwnProperty(data.room_id));
+      console.log('1',rooms.hasOwnProperty(parseInt(data.room_id)));
+      console.log('2',data.room_cnt);
+      console.log('update_room', data);
       if(data.room_cnt > 0 && !rooms.hasOwnProperty(data.room_id)){ // 생성
         rooms[data.room_id] = {
           title: data.room_title,
           rcnt: data.room_cnt,
           readycnt: data.room_readycnt,
-          is_lock: data.room_is_lock
+          is_lock: data.room_is_lock,
+          is_in_game: data.room_is_in_game
         }
-        set_rooms({...rooms, data})
-        roomListUpdate()
-      }
-      else if(rooms.hasOwnProperty(data.room_id) && data.room_cnt <= 0){
-        delete rooms[data.room_id];
-        console.log(rooms);
         set_rooms({...rooms})
         roomListUpdate()
       }
-    })    
+      else if(rooms.hasOwnProperty(data.room_id) && data.room_cnt <= 0){
+        
+        delete rooms[data.room_id];
+        set_rooms({...rooms})
+        console.log(rooms);
+        roomListUpdate()
+      }
+      else{
+        rooms[data.room_id] = {
+          title: data.room_title,
+          rcnt: data.room_cnt,
+          readycnt: data.room_readycnt,
+          is_lock: data.room_is_lock,
+          is_in_game: data.room_is_in_game
+        }
+        set_rooms({...rooms})
+        roomListUpdate()
+      }
+    })
+
+    return(()=>{
+      socket.off('update_room')
+    })
   },[])
 
   useEffect( ()=>{
     socket.emit('get_room_list')
-  },[])
+  }, [])
 
   useEffect(() => {
     const temp_name = sessionStorage.getItem('nickname')
-    console.log(temp_name);
     socket.emit('getmystatus', {name: temp_name})
+    //console.log(temp_name);
   }, [])
 
   useEffect(() => {
@@ -147,7 +172,6 @@ export default function Lobby(){
   useEffect(() => {
     socket.on('yourstatus', (data) => {
       set_my_score(data.score)
-      console.log(data.score)
     })
   }, [my_score])
 
@@ -155,7 +179,6 @@ export default function Lobby(){
 
     socket.on('yourranking', (data) => {
       set_user_infos(data.stats)
-      console.log(data);
     })
   }, [user_infos])
 

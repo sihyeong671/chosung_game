@@ -1,16 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Color } from "../utils/color/colors";
+import { socket } from "../utils/socket/socketManger";
 
-const ProgressBar = (props) => {
-  const { second } = props
+const ProgressBar = () => {
 
-  let second_percent = ((60-second)/60) *100
+  const [seconds, set_seconds] = useState(0)
+  useEffect(() => { //timer 시간 set
+    socket.on('one_second', (data) =>{
+      set_seconds(data.tick)
+      // console.log(seconds);
+    })
+  }, [])
+
+  let second_percent = ((60-seconds)/60) *100
   let filler_color = Color.green_5
 
-  if((60 - second) < 10){
+  if((60 - seconds) < 10){
     filler_color = Color.red_1
     console.log(filler_color)
-  } else if((60 - second) < 25){
+  } else if((60 - seconds) < 25){
     filler_color = Color.orange_1
   }
   
@@ -22,7 +30,7 @@ const ProgressBar = (props) => {
     <>
       <div className='container'>
         <div className='filler' style={secondfiller}>
-          <span className='label'>{`${60-second}`}</span>
+          <span className='label'>{`${60-seconds}`}</span>
         </div>
       </div>
       <style jsx>{`

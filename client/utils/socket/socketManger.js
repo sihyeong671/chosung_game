@@ -1,11 +1,11 @@
 // socket Handler
 import io from 'socket.io-client'
+import { Chatting } from '../../components/Chatting';
 
 export let socket;
 
 export function connectSocket(){
   socket = io("http://192.249.18.147:80")
-
   // 연결
   socket.on('connect', ()=>{
     console.log('connect');
@@ -41,6 +41,7 @@ export function sendMessage(state){
   console.log(state)
   socket.emit('message', {content: state.content, user: state.user})
 }
+
 
 
 

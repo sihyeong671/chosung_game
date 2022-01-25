@@ -17,6 +17,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import { motion } from "framer-motion";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
+import { Chatting } from "../components/Chatting"
+
+
 
 const useStyles_not_ready = makeStyles({ //player card not ready style
   player: {
@@ -42,10 +45,10 @@ const useStyles_ready = makeStyles({  //player car ready style
 
 
 export default function GamePage() {
-
+  console.log("게임 페이지 렌더링");
   const not_ready_class = useStyles_not_ready();
   const ready_class = useStyles_ready();
-  let correct = true
+  
   let audio;
   const slide = {
     hidden: {
@@ -61,11 +64,10 @@ export default function GamePage() {
   const [saveduser, set_saveduser] = useState('');
   const [round_start, set_round_start]= useState(false)
   const [problem, set_problem] = useState('')
-  const [message, set_message] = useState('')
-  const [message_list, set_message_list] = useState([])
+  
   const [my_ready_state, set_my_ready_state] = useState(false)
   const [btn_background, set_btn_background] = useState(Color.green_6)
-  const [seconds, set_seconds] = useState(0)
+  
   const [my_room, set_my_room] = useState({})
   const [score, set_score]= useState([])
   const [meaning, set_meaning] = useState('')
@@ -80,22 +82,7 @@ export default function GamePage() {
     set_saveduser(sessionStorage.getItem('nickname'))
   } , [])
 
-  useEffect(() => { //timer 시간 set
-    socket.on('one_second', (data) =>{
-      set_seconds(data.tick)
-      // console.log(seconds);
-    })
-  }, [])
-
-  useEffect(() => { //correct event
-    socket.on('correct', (data) => { // 수정
-      console.log('correct' + data.user)
-      correct = true
-      console.log('correct' + correct)
-      toast(`${data.user}가 정답을 맞췄습니다!`)
-      // set_correct_person(data.user)
-    })
-  }, [])
+  
 
   useEffect(() => { //round start event
     socket.on('round_start', (data)=>{
@@ -107,12 +94,18 @@ export default function GamePage() {
       // console.log(problem)
       //console.log(data.hint);
     })
+    return(() => {
+      socket.off('round_start');
+    })
   }, [])
 
   useEffect(() => { //hint update event
     socket.on('hint_update', (data)=>{
       set_problem(data.hint)
       console.log(problem)
+    })
+    return(() => {
+      socket.off('hint_update');
     })
   }, [])
 
@@ -125,20 +118,20 @@ export default function GamePage() {
       set_problem(data.answer)
       set_meaning(data.meaning)
     })
-  }, [])
-
-  useEffect(() => { //wrong event
-    socket.on('wrong', (data) => {
-      console.log('wrong' + data.user)
-      correct = false
-      console.log('correct' + correct)
+    return(()=>{
+      socket.off('round_over');
     })
   }, [])
+
+  
 
   useEffect(() => { //update detail room event
     socket.on('update_detail_room', (data)=>{
       console.log(data);
       set_my_room(data);
+    })
+    return(()=>{
+      socket.off('update_detail_room');
     })
   }, [])
 
@@ -150,26 +143,17 @@ export default function GamePage() {
       set_btn_background(Color.green_6)
       toast("게임 종료!")
     })
+    return(()=>{
+      socket.off('game_over');
+    })
   }, [])
 
   useEffect(()=>{ // get detail room
     socket.emit('get_detail_room', {
       room_id : parseInt(sessionStorage.getItem('room_id'))
     })
-
   },[])
 
-  useEffect(()=>{
-    socket.on('new_message', (data) => {
-      set_message_list([...message_list, data])
-    })
-  }, [message_list])
-  
-  
-  useEffect(() => { //새로운 message 보낼 때 스크롤 위치
-    const chatting_view = document.getElementById('chatting')
-    chatting_view.scrollBy({top:chatting_view.scrollHeight})
-  }, [message_list])
 
   const handleready = () =>{  //준비하기 클릭 시
     if(my_ready_state === false){
@@ -186,20 +170,6 @@ export default function GamePage() {
     }
   }
 
-  const handlepost = (e) => { //채팅 입력했을 때
-    e.preventDefault()
-    // console.log(saveduser);
-    const temp = {
-      user: saveduser,
-      content: message
-    }
-    sendMessage(temp)
-    // console.log(message)
-    set_message_list([...message_list, temp])
-    // console.log(message_list)
-    set_message('')
-  }
-
   const handleexit = (e) => { //나가기 버튼 클릭 시
     socket.emit('exit_room')
     // console.log("exit")
@@ -212,7 +182,7 @@ export default function GamePage() {
       <div className='game_page' >
         <VerticalLayout>
           <div className='progress_bar'>
-            <ProgressBar second={seconds}/>
+            <ProgressBar/>
           </div>
           <div>
             <div className='question'>
@@ -238,8 +208,6 @@ export default function GamePage() {
                         img_num = img_num * 256 + c
                         img_num = img_num % 7 + 1
                       }
-
-                      console.log(img_num)
 
                       if(name.length > 7){ // 이름
                         show_name = <div className="my_name">{name.slice(0, 6) + '...'}</div>
@@ -287,50 +255,10 @@ export default function GamePage() {
                 </HorizontalLayout>
               </div>
               <div>
-                <VerticalLayout>
-                  <div id='chatting'>
-                    {
-                      message_list?.map((msg) => {
-                        let show_name
-                        
-                        if(msg.user.length > 7){ // 이름
-                          show_name = msg.user.slice(0, 6) + '...'
-                        }
-                        else{
-                          show_name = msg.user
-                        }
+                <Chatting/>
 
-                        if(msg.user === saveduser){
-                          console.log("me " + saveduser)
-                          return(
-                            <div key={uuid()}>
-                              <span  className='my_message'>{msg.content}</span>
-                            </div>
-                          )
-                        }
-                        else{
-                          console.log("you")
-                          return(
-                            <div key={uuid()}>
-                              <HorizontalLayout>
-                                <div className='name'>{show_name}</div>
-                                <span className='other_message'>{msg.content}</span>
-                              </HorizontalLayout>
-                              
-                            </div>
-                          )
-                        }
-                        
-                      })
-                    }
-                  </div>
-                </VerticalLayout>
               </div>
-              <div>
-                  <form onSubmit={handlepost} className='chatting_bottom'>
-                    <input type='text' id='chatting_input' placeholder='채팅 입력창' onChange={e=>{set_message(e.target.value)}} value={message}></input>
-                  </form>
-              </div>
+                            
               <div className='ready'>
                 <HorizontalLayout>
                   <button className='ready_btn' disabled={round_start} onClick={()=>{handleready()}}>준비하기</button>

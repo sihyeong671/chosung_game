@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from 'react'
 
 export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock}){
-
+  console.log(is_in_game);
   const router = useRouter();
   let join_button;
 
@@ -44,7 +44,6 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
     })
 
     socket.on('correct_pw', (data)=>{
-      console.log("correct_pw run");
       sessionStorage.setItem('room_id', room_id)
       router.push('/GamePage')
     })
@@ -73,7 +72,7 @@ export default function Room({room_id, room_title, room_cnt, is_in_game, is_lock
           </div>
         </div>
         <div className="button">
-          {room_cnt === 6 ? 
+          {room_cnt === 6 || is_in_game ? 
             <button
               disabled
               className="enter_btn">

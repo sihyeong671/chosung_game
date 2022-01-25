@@ -2,6 +2,7 @@
   "name": "client",
   "private": true,
   "scripts": {
+    "test": "next -p 80",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
