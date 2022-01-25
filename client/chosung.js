@@ -27,6 +27,12 @@ const sokdamSchema = new mongoose.Schema({
 	meaning:String
   })
 const Sokdam = mongoose.model("sokdam", sokdamSchema)
+const analectSchema = new mongoose.Schema({
+	id:Number,
+	content:String,
+	meaning:String
+  })
+const Analect = mongoose.model("analect", sokdamSchema)
 const {
   handle
 } = require('express/lib/router')
@@ -296,35 +302,64 @@ io.sockets.on('connection', (socket) => {
 		socket.join(room_id);
 		send_update_room(room_id);
 	}
-
+	
 	function handle_round_start(){
 		if(room_id==-1||rooms[room_id].rcnt<=0)return;
 		console.log(`new round`);
-		let rd=crypto.randomInt(1,612);
-		console.log(`selected rd : ${rd}`);
-		Sokdam.findOne({id:rd},(err,sokdam)=>{
-			console.log(`findone`);
-			if(err)return handleError(err);
-			round=rooms[room_id].round
-			console.log('timersetting');
-			clearInterval(hint_timerId);
-			clearTimeout(round_timerId);
-			clearInterval(ticker_timerId);
-			round_timerId=setTimeout(handle_timeout,60000);
-			hint_timerId=setInterval(handle_hint,3000);
-			ticker_timerId=setInterval(handle_tick,1000);
-			rooms[room_id].sec=0;
-			rooms[room_id].answer=sokdam.content;
-			rooms[room_id].meaning=sokdam.meaning;
-			rooms[room_id].winner=[];
-			console.log(`sokdam : ${sokdam.content}`);
-			rooms[room_id].hint=extract_chosung(sokdam.content);
-			io.to(room_id).emit('round_start',{
-				round_number:round,
-				hint:rooms[room_id].hint
-			});
-			
-		})
+		if(rooms[room_id].round<=rooms[room_id].rcnt*2){
+			let rd=crypto.randomInt(1,612);
+			console.log(`sokdam, selected rd : ${rd}`);
+			Sokdam.findOne({id:rd},(err,sokdam)=>{
+				console.log(`findone`);
+				if(err)return handleError(err);
+				round=rooms[room_id].round
+				console.log('timersetting');
+				clearInterval(hint_timerId);
+				clearTimeout(round_timerId);
+				clearInterval(ticker_timerId);
+				round_timerId=setTimeout(handle_timeout,60000);
+				hint_timerId=setInterval(handle_hint,3000);
+				ticker_timerId=setInterval(handle_tick,1000);
+				rooms[room_id].sec=0;
+				rooms[room_id].answer=sokdam.content;
+				rooms[room_id].meaning=sokdam.meaning;
+				rooms[room_id].winner=[];
+				console.log(`sokdam : ${sokdam.content}`);
+				rooms[room_id].hint=extract_chosung(sokdam.content);
+				io.to(room_id).emit('round_start',{
+					round_number:round,
+					hint:rooms[room_id].hint
+				});
+				
+			})
+		}
+		else{
+			let rd=crypto.randomInt(1,369);
+			console.log(`analect, selected rd : ${rd}`);
+			Analect.findOne({id:rd},(err,analect)=>{
+				console.log(`findone`);
+				if(err)return handleError(err);
+				round=rooms[room_id].round
+				console.log('timersetting');
+				clearInterval(hint_timerId);
+				clearTimeout(round_timerId);
+				clearInterval(ticker_timerId);
+				round_timerId=setTimeout(handle_timeout,60000);
+				hint_timerId=setInterval(handle_hint,3000);
+				ticker_timerId=setInterval(handle_tick,1000);
+				rooms[room_id].sec=0;
+				rooms[room_id].answer=analect.content;
+				rooms[room_id].meaning=analect.meaning;
+				rooms[room_id].winner=[];
+				console.log(`analect : ${analect.content}`);
+				rooms[room_id].hint=extract_chosung(analect.content);
+				io.to(room_id).emit('round_start',{
+					round_number:round,
+					hint:rooms[room_id].hint
+				});
+				
+			})
+		}
 	}
 	function handle_roundover(){
 		console.log(`handling round over`);
@@ -348,8 +383,8 @@ io.sockets.on('connection', (socket) => {
 			meaning:rooms[room_id].meaning
 		})
 		rooms[room_id].answer="";
-		if(rooms[room_id].round<=2*rooms[room_id].rcnt){
-			setTimeout(()=>{handle_round_start()},2000);
+		if(rooms[room_id].round<=3*rooms[room_id].rcnt){
+			setTimeout(()=>{handle_round_start()},6000);
 			return;
 		}
 		handle_gameover();
