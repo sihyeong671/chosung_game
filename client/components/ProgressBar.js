@@ -21,8 +21,6 @@ const ProgressBar = (props) => {
         .container{
           background-color: #E0E0DE;
           border-radius: 50px;
-          margin-left: 8px;
-          margin-right: 8px;
         }
         .filler{
           height: 100%;

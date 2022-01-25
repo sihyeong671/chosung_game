@@ -5,8 +5,8 @@ export default function Layout({children}){
   
   return(
     <>
-          {router.pathname === '/GamePage' || router.pathname === '/' ? null : <Header/>}
-          <nav>{children}</nav>
+      {router.pathname === '/' ? null : <Header/>}
+      <nav>{children}</nav>
     </>
   )
 }
