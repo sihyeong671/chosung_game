@@ -67,3 +67,14 @@ console.log(map.get('c'));
 se = new Map();
 se.set("a",1);
 se.set("b",1);
+
+function hash_to_number(word){
+	ret=0;
+	for(i=0;i<word.length;i++){
+		c=word.charCodeAt(i);
+		ret=ret*256+c;
+		ret%=7;
+	}
+	return ret;
+}
+console.log(hash_to_number("guest-sdfsgagdd"));
