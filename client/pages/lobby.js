@@ -186,24 +186,22 @@ export default function Lobby(){
               })}
             </div>
             <div className='my_rank'>
-              <VerticalLayout>
-                <div>
-                  내 랭킹 
-                </div>
-                <div>
-                  {sessionStorage.getItem('nickname')}
-                </div>
-                <div>
-                  <HorizontalLayout>
-                    <div className='my_place'>
-                      {my_info}위
+                <div className='rank_and_name'>
+                  <div className='rank'>
+                    내 랭킹 
+                    <div className='place_and_score'>
+                      <div className='my_place'>
+                        {my_info}위
+                      </div>
+                      <div className='my_score'>
+                        {my_score}점
+                      </div>
                     </div>
-                    <div className='my_score'>
-                      {my_score}점
-                    </div>
-                  </HorizontalLayout>
+                  </div>
+                  <div className='name'>
+                    {sessionStorage.getItem('nickname')}
+                  </div>
                 </div>
-              </VerticalLayout>
             </div>
           </div>
           <div className='rooms_wrapper'>
@@ -212,8 +210,7 @@ export default function Lobby(){
                   set_show_modal(true)
                 }}variant="contained">방 만들기</button>
               <Link href="/GamePage">
-                <button className='quick_enter_btn' onClick={()=>{
-                  quickEnter()
+                <button disabled className='quick_enter_btn' onClick={()=>{
                 }} variant="contained">빠른 입장</button>
               </Link>
             </div>
@@ -281,11 +278,13 @@ export default function Lobby(){
             justify-content: center;
           }
           .make_room_btn{
+            
+            font-family: "KATURI";
             background-color: ${Color.green_6};
             border: none;
             padding: 5px 16px;
             color: white;
-            font-size: 20px;
+            font-size: 25px;
             font-weight: bold;
             margin-right: 10px;
           }
@@ -294,15 +293,17 @@ export default function Lobby(){
             background-color: ${Color.green_7} 
           }
           .quick_enter_btn{
+            font-family: "KATURI";
             background-color: ${Color.green_6};
             border: none;
             padding: 5px 16px;
             color: white;
-            font-size: 20px;
+            font-size: 25px;
             font-weight: bold;
             margin-right: 10px;
           }
           .quick_enter_btn:hover{
+            
             cursor: pointer;
             background-color: ${Color.green_7};
           }
@@ -317,6 +318,13 @@ export default function Lobby(){
           }
           .modal{
             background:-color: ${Color.green_2};
+          }
+          .rank_and_name{
+            display: flex;
+            justify-content: space-around; 
+          }
+          .place_and_score{
+            display:flex;
           }
         `}</style>
       </motion.div>

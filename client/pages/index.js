@@ -40,31 +40,31 @@ export default function Home() {
               <marquee scrollamount='8'  width='100%' height='100%'>
               <HorizontalLayout>
                 <div>
-                  <img className='character3' src='/img/character_1.png' width={200} height={120} />
+                  <img className='character1' src='/img/character_1.png' width={200} height={120} />
                 </div>
                 <div>
-                  <img className='character4' src='/img/character_2.png' width={200} height={120} />
+                  <img className='character2' src='/img/character_2.png' width={200} height={120} />
                 </div>
                 <div>
-                  <img className='character3' src='/img/character_3.png' width={200} height={120} />
+                  <img className='character1' src='/img/character_3.png' width={200} height={120} />
                 </div>
                 <div>
-                  <img className='character4' src='/img/character_4.png' width={200} height={120} />
+                  <img className='character2' src='/img/character_4.png' width={200} height={120} />
                 </div>
                 <div>
-                  <img className='character3' src='/img/character_5.png' width={200} height={120} />
+                  <img className='character1' src='/img/character_5.png' width={200} height={120} />
                 </div>
                 <div>
-                  <img className='character4' src='/img/character_6.png' width={200} height={140} />
+                  <img className='character2' src='/img/character_6.png' width={200} height={140} />
                 </div>
                 <div>
-                  <img className='character3' src='/img/character_7.png' width={200} height={120} />
+                  <img className='character1' src='/img/character_7.png' width={200} height={120} />
                 </div>
                 </HorizontalLayout>
               </marquee>
           </div>
           <div className='main_title'>
-            천 리길도 한 걸음 부터
+            천 리 길도 한 걸음 부터
           </div>
           <div className='login_wrapper'>
             <Link href={'/lobby'}>
@@ -88,7 +88,7 @@ export default function Home() {
               onLogout={()=>{console.log("로그아웃")}}
               render={({ onClick }) => {
                 return (
-                  <button
+                  <button className='kakao_login'
                     onClick={(e) => {
                       e.preventDefault();
                       onClick();
@@ -127,14 +127,6 @@ export default function Home() {
             justify-content: center;
             padding-top: 100px;
           }
-          // .photo{
-          //   background-image: url('/img/background_img.jpg');
-          //   background-repeat: no-repeat;
-          //   background-size: cover; 
-          //   width: 300px;
-          //   height: 300px;
-            
-          // }
           .guest_login{
             background-color: transparent;
             border: none;
@@ -147,36 +139,26 @@ export default function Home() {
             cursor: pointer;
             color: black;
           }
-          .kakao:hover{
-            cursor:'pointer';
+          .kakao_login{
+            background-color: transparent;
+            border: none;
+            padding: 5px 16px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
           }
-          // .character1 {
-          //   animation: rotate_image 6s linear infinite;
-          //   transform-origin: 50% 50%;
-          //   margin: 8px;
-          // }
-          .character2 {
-            animation: rotate_image 6s linear infinite, scale1 6s linear infinite;
-            transform-origin: 50% 50%;
-            margin: 8px;
+          .kakao_login:hover{
+            cursor: pointer;
+            color: black;
           }
-          .character3 {
+          .character1 {
             animation: motion1 0.5s linear 0s infinite alternate;
             scrollamount: 4;
             margin: 8px;
           }
-          .character4 {
+          .character2 {
             animation: motion2 0.5s linear 0s infinite alternate;
             margin: 8px;
-          }
-          @keyframes rotate_image {
-            100% {
-              transform: rotate(360deg);
-            }
-          }
-          @keyframes scale1 {
-            0% { transform: scale(0) }
-            100% { transform: scale(1) }
           }
           @keyframes motion1 {
             0% {padding-top: 8px;}

@@ -8,9 +8,11 @@ import HorizontalLayout from './HorizontalLayout';
 import { useEffect } from 'react';
 
 export default function Header(){
+  console.log('header redering');
   let audio;
 
   useEffect(()=>{
+    console.log("run");
     audio = new Audio();
     audio.src = '/audio/bgm.mp3';
     audio.loop = true;
@@ -18,7 +20,7 @@ export default function Header(){
     return(()=>{
       audio.pause();
     })
-  },[])
+  })
 
   const playAudio = () => {
     audio.play();

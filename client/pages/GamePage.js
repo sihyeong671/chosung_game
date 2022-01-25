@@ -242,10 +242,10 @@ export default function GamePage() {
                       console.log(img_num)
 
                       if(name.length > 7){ // 이름
-                        show_name = name.slice(0, 6) + '...'
+                        show_name = <div className="my_name">{name.slice(0, 6) + '...'}</div>
                       }
                       else{
-                        show_name = name
+                        show_name = <div className="my_name">{name}</div>
                       }
 
                       if(my_room.is_ready.includes(name)){ // 준비상태
@@ -258,7 +258,7 @@ export default function GamePage() {
                       // 점수
                       score?.forEach((item)=>{
                         if(item.name === name){
-                          my_score = item.value;
+                          my_score = <div className="my_score">{item.value}</div>;
                         }
                       })
 
@@ -409,6 +409,12 @@ export default function GamePage() {
           padding-left: 8px;
           padding-top: 25px;
         }
+        .my_name{
+          font-family:"KATURI";
+        }
+        .my_score{
+          font-family:"KATURI";
+        }
         .other_message{
           float: left;
           background-color: white;
@@ -439,7 +445,8 @@ export default function GamePage() {
           border: none;
           padding: 5px 16px;
           color: white;
-          font-size: 20px;
+          font-family: "KATURI";
+          font-size: 25px;
           font-weight: bold;
           margin-right: 10px;
         }
@@ -452,7 +459,8 @@ export default function GamePage() {
           border: none;
           padding: 5px 16px;
           color: white;
-          font-size: 20px;
+          font-family: "KATURI";
+          font-size: 25px;
           font-weight: bold;
           margin-left: 10px;
         }

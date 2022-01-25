@@ -1,3 +1,9 @@
 body {
   margin: 0px;
+  font-family: "KATURI"
+}
+
+@font-face {
+  font-family: "KATURI";
+  src: url('/font/KATURI.ttf');
 }
