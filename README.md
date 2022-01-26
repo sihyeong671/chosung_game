@@ -1,6 +1,11 @@
+#   
+프로그래밍의 제 1 원칙 그것이 작동한다면 건드리지 마라   
+![비둘기](https://user-images.githubusercontent.com/77565951/151102216-ab8b68b1-6253-4200-a496-768988f661c8.gif)
+
+
 # 천 리 길도 한 걸음 부터 (속담/어록 초성게임)
-- Frontend: Next js
-- Backend: Node js
+- Frontend: react, Next js
+- Backend: Node js, express
 
 ## 게임 소개
 - '천 리 길도 한 걸음 부터' 여러 명이 함께 속담/어록 초성게임을 즐길 수 있는 게임입니다.
