@@ -51,6 +51,6 @@
 
 
 ### Credit
-- [박시형](https://github.com/sihyeong671)
-- [공병규](https://github.com/johnpooh121)
-- [조민서](https://github.com/jjminsuh)
+- 박시형 ([sihyeong671](https://github.com/sihyeong671))
+- 공병규 ([johnpooh121](https://github.com/johnpooh121))
+- 조민서 ([jjminsuh](https://github.com/jjminsuh))
