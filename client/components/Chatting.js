@@ -33,7 +33,7 @@ export const Chatting = () => {
   useEffect(() => { //correct event
     socket.on('correct', (data) => { // 수정
       correct = true
-      toast(`${data.user}가 정답을 맞췄습니다!`)
+      toast(`${data.user}(이)가 정답을 맞췄습니다!`)
       // set_correct_person(data.user)
     })
     return(()=>{

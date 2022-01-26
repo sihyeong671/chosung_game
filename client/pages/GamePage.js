@@ -1,6 +1,6 @@
 import VerticalLayout from "../components/VerticalLayout";
 import HorizontalLayout from "../components/HorizontalLayout";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ProgressBar from "../components/ProgressBar.js";
 import uuid from 'react-uuid'
 import { sendMessage } from '../utils/socket/socketManger'
@@ -18,6 +18,8 @@ import { motion } from "framer-motion";
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import { Chatting } from "../components/Chatting"
+import { useRouter } from "next/router";
+
 
 
 
@@ -43,7 +45,6 @@ const useStyles_ready = makeStyles({  //player car ready style
   }
 })
 
-
 export default function GamePage() {
   console.log("게임 페이지 렌더링");
   const not_ready_class = useStyles_not_ready();
@@ -61,16 +62,18 @@ export default function GamePage() {
     }
   }
 
+  const router = useRouter();
   const [saveduser, set_saveduser] = useState('');
   const [round_start, set_round_start]= useState(false)
   const [problem, set_problem] = useState('')
-  
+  const [problem_type, set_problem_type] = useState('')
+  const [meaning, set_meaning] = useState('')
   const [my_ready_state, set_my_ready_state] = useState(false)
   const [btn_background, set_btn_background] = useState(Color.green_6)
   
   const [my_room, set_my_room] = useState({})
   const [score, set_score]= useState([])
-  const [meaning, set_meaning] = useState('')
+  
   const [correct_person, set_correct_person] = useState('')
 
 
@@ -91,6 +94,7 @@ export default function GamePage() {
       set_round_start(true)
       //console.log('round_start: ' + round_start)
       set_problem(data.hint)
+      set_problem_type(data.type)
       // console.log(problem)
       //console.log(data.hint);
     })
@@ -102,7 +106,6 @@ export default function GamePage() {
   useEffect(() => { //hint update event
     socket.on('hint_update', (data)=>{
       set_problem(data.hint)
-      console.log(problem)
     })
     return(() => {
       socket.off('hint_update');
@@ -111,8 +114,6 @@ export default function GamePage() {
 
   useEffect(() => { //round over event
     socket.on('round_over', (data)=>{ // 수정
-      console.log('round_over')
-      console.log(data);
       set_score(data.score);
       set_round_start(false);
       set_problem(data.answer)
@@ -127,7 +128,6 @@ export default function GamePage() {
 
   useEffect(() => { //update detail room event
     socket.on('update_detail_room', (data)=>{
-      console.log(data);
       set_my_room(data);
     })
     return(()=>{
@@ -138,8 +138,6 @@ export default function GamePage() {
   useEffect(() => { //game over event
     socket.on('game_over', (data) => {
       set_my_ready_state(false)
-      console.log(my_ready_state);
-      console.log("게임 오버" + my_ready_state)
       set_btn_background(Color.green_6)
       toast("게임 종료!")
     })
@@ -172,6 +170,7 @@ export default function GamePage() {
 
   const handleexit = (e) => { //나가기 버튼 클릭 시
     socket.emit('exit_room')
+    router.replace('/lobby');
     // console.log("exit")
   }
 
@@ -185,6 +184,9 @@ export default function GamePage() {
             <ProgressBar/>
           </div>
           <div>
+            <div className="type">
+              <span className="type_text">{problem_type}</span>
+            </div>
             <div className='question'>
               <span className='question_text'>{problem}</span>
             </div>
@@ -262,9 +264,7 @@ export default function GamePage() {
               <div className='ready'>
                 <HorizontalLayout>
                   <button className='ready_btn' disabled={round_start} onClick={()=>{handleready()}}>준비하기</button>
-                  <Link href='/lobby'>
-                    <button className='out_btn' onClick={()=>{handleexit()}}>방 나가기</button> 
-                  </Link>
+                  <button className='out_btn' onClick={()=>{handleexit()}}>방 나가기</button> 
                 </HorizontalLayout>
               </div>
             </VerticalLayout>
@@ -272,20 +272,22 @@ export default function GamePage() {
         </VerticalLayout>
       </div>
 
-      <ToastContainer closeOnClick/>
+      <ToastContainer 
+        position="top-left"
+        closeOnClick
+      />
       <style jsx>{`
         .game_page{
           height: 89vh;
         }
         .progress_bar{
           height: 5vh;
-          width: 99.5%;
-          padding-top: 3px;
+          width: 99.3%;
           padding-bottom: 3px;
         }
         .question{
           //display: table;
-          height: 8vh;
+          height: 7vh;
           margin: auto;
           text-align: center;
         }
@@ -297,10 +299,19 @@ export default function GamePage() {
           padding-top: 10px;
         }
         .meaning{
-          height: 10vh;
+          height: 7vh;
           text-align :center;
-          margin-bottom: 16px;
-          margint-top: 16px;
+          margin-bottom: 13px;
+          margin-top: 10px;
+        }
+        .type{
+          display:flex;
+          justify-content: center;
+        }
+        .type_text{
+          font-size: 1.5rem;
+          padding-top:0.5rem;
+          padding-bottom:0.5rem;
         }
         .set_player{
           margin-bottom: 16px;
@@ -308,10 +319,9 @@ export default function GamePage() {
         #chatting{
           display: flex;
           flex-direction: column;
-          height: 34vh;
+          height: 32vh;
           width: 95%;
           margin: auto;
-          margin-bottom: 5px;
           overflow-y: scroll;
           overflow-x: hidden;
           background-color: ${Color.green_1};

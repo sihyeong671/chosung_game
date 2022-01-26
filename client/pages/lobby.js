@@ -49,9 +49,7 @@ export default function Lobby(){
     speed: 500,
     slidesToShow: 2,
     slidesToScroll: 2,
-    rows: 3,
-    nextArrow: <NextArrow/>,
-    prevArrow: <PrevArrow/>
+    rows: 3
   };
 
   const slide = {
@@ -79,18 +77,18 @@ export default function Lobby(){
     console.log("업데이트 실행");
     const temp = []
 
-    for(const [k, v] of Object.entries(rooms)){
+    rooms.forEach((r)=>{
       temp.push(
         <Room
           key={uuid()}
-          room_id={parseInt(k)}
-          room_title={v.title}
-          room_cnt={v.rcnt}
-          is_in_game={v.is_in_game}
-          is_lock = {v.is_lock}
+          room_id={parseInt(r.id)}
+          room_title={r.title}
+          room_cnt={r.rcnt}
+          is_in_game={r.is_in_game}
+          is_lock = {r.is_lock}
         />
       )
-    }
+    })
     set_room_list(temp);
   }
 
@@ -111,41 +109,35 @@ export default function Lobby(){
   
   useEffect( ()=>{  //update room
     socket.on('update_room', (data)=>{
-      console.log(data);
-      console.log(rooms);
-      console.log(rooms[4]);
-      console.log(rooms['4']);
-      console.log('1',rooms.hasOwnProperty(data.room_id));
-      console.log('1',rooms.hasOwnProperty(parseInt(data.room_id)));
-      console.log('2',data.room_cnt);
-      console.log('update_room', data);
-      if(data.room_cnt > 0 && !rooms.hasOwnProperty(data.room_id)){ // 생성
+      if(data.room_cnt > 0 && rooms[data.room_id] === undefined){ // 생성
+        
         rooms[data.room_id] = {
+          id: data.room_id,
           title: data.room_title,
           rcnt: data.room_cnt,
           readycnt: data.room_readycnt,
           is_lock: data.room_is_lock,
           is_in_game: data.room_is_in_game
         }
-        set_rooms({...rooms})
+        set_rooms([...rooms])
         roomListUpdate()
       }
-      else if(rooms.hasOwnProperty(data.room_id) && data.room_cnt <= 0){
+      else if(data.room_cnt <= 0){ // 삭제
         
         delete rooms[data.room_id];
-        set_rooms({...rooms})
-        console.log(rooms);
+        set_rooms([...rooms])
         roomListUpdate()
       }
       else{
         rooms[data.room_id] = {
+          id: data.room_id,
           title: data.room_title,
           rcnt: data.room_cnt,
           readycnt: data.room_readycnt,
           is_lock: data.room_is_lock,
           is_in_game: data.room_is_in_game
         }
-        set_rooms({...rooms})
+        set_rooms([...rooms])
         roomListUpdate()
       }
     })
@@ -257,9 +249,6 @@ export default function Lobby(){
             padding: 3rem;
             margin: 1rem;
           }
-          .slider{
-            margin:3rem;
-          }
           .ranking{
             height: 60vh;
             width: 30vw;
@@ -278,9 +267,10 @@ export default function Lobby(){
             boreder-radius: 10px;
           }
           .my_rank{
+            width: 28vw;
+            margin-top: 30px;
             border: 1px solid;
             padding: 10px;
-            margin: 16px;
             font-weight: bold;
           }
           .my_place{
@@ -337,7 +327,8 @@ export default function Lobby(){
             margin-left: 1rem;
           }
           .slider{
-            width: 70vw;
+            margin:3rem;
+            width: 50vw;
           }
           .modal{
             background:-color: ${Color.green_2};
