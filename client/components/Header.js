@@ -6,16 +6,20 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import HorizontalLayout from './HorizontalLayout';
 import { useEffect } from 'react';
-import PlayArrow from '@mui/icons-material/PlayArrow';
 
 export default function Header(){
+  console.log('header redering');
   let audio;
 
   useEffect(()=>{
+    console.log("run");
     audio = new Audio();
     audio.src = '/audio/bgm.mp3';
     audio.loop = true;
     audio.autoplay = true;
+    return(()=>{
+      audio.pause();
+    })
   })
 
   const playAudio = () => {
@@ -63,14 +67,11 @@ export default function Header(){
             display: flex;
             justify-content: space-between;
             align-items: center; 
-            height: 10vh;
+            height: 8vh;
             margin-bottom: 1rem;
-            //box-shadow: 0px 15px 10px -15px #111;
-            //border-radius: 20px;
           }
           .title{
             margin-left: 1rem;
-            //color: white;
             font-weight: bold;
             font-size: 20px;
           }

@@ -14,7 +14,9 @@ import {Color} from "../utils/color/colors";
 import Link from 'next/link'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { motion } from "framer-motion";
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
 
 const useStyles_not_ready = makeStyles({ //player card not ready style
   player: {
@@ -44,6 +46,17 @@ export default function GamePage() {
   const not_ready_class = useStyles_not_ready();
   const ready_class = useStyles_ready();
   let correct = true
+  let audio;
+  const slide = {
+    hidden: {
+        x: '-100%',
+        opacity: 0,
+    },
+    visible: {
+        x: 0,
+        opacity: 1
+    }
+  }
 
   const [saveduser, set_saveduser] = useState('');
   const [round_start, set_round_start]= useState(false)
@@ -57,6 +70,11 @@ export default function GamePage() {
   const [score, set_score]= useState([])
   const [meaning, set_meaning] = useState('')
   const [correct_person, set_correct_person] = useState('')
+
+
+  useEffect(()=>{
+    audio = new Audio();
+  }, [])
 
   useEffect(()=>{ //session storage에 저장된 user nickname 가져오기
     set_saveduser(sessionStorage.getItem('nickname'))
@@ -190,6 +208,7 @@ export default function GamePage() {
 
   return(         
     <>
+    <motion.div initial='hidden' animate='visible' exit='hidden' variants={slide}>
       <div className='game_page' >
         <VerticalLayout>
           <div className='progress_bar'>
@@ -223,10 +242,10 @@ export default function GamePage() {
                       console.log(img_num)
 
                       if(name.length > 7){ // 이름
-                        show_name = name.slice(0, 6) + '...'
+                        show_name = <div className="my_name">{name.slice(0, 6) + '...'}</div>
                       }
                       else{
-                        show_name = name
+                        show_name = <div className="my_name">{name}</div>
                       }
 
                       if(my_room.is_ready.includes(name)){ // 준비상태
@@ -239,7 +258,7 @@ export default function GamePage() {
                       // 점수
                       score?.forEach((item)=>{
                         if(item.name === name){
-                          my_score = item.value;
+                          my_score = <div className="my_score">{item.value}</div>;
                         }
                       })
 
@@ -324,22 +343,21 @@ export default function GamePage() {
           </div>
         </VerticalLayout>
       </div>
-      {/* {correct ? toast(`${correct_person}가 정답을 맞췄습니다!`) : null} */}
+
       <ToastContainer closeOnClick/>
       <style jsx>{`
         .game_page{
-          height: 100%;
+          height: 89vh;
         }
         .progress_bar{
           height: 5vh;
-          width: 100%;
-          //margin-bottom 16px;
-          padding-top: 5px;
-          padding-bottom: 5px;
+          width: 99.5%;
+          padding-top: 3px;
+          padding-bottom: 3px;
         }
         .question{
           //display: table;
-          height: 10vh;
+          height: 8vh;
           margin: auto;
           text-align: center;
         }
@@ -362,7 +380,7 @@ export default function GamePage() {
         #chatting{
           display: flex;
           flex-direction: column;
-          height: 36vh;
+          height: 34vh;
           width: 95%;
           margin: auto;
           margin-bottom: 5px;
@@ -391,6 +409,12 @@ export default function GamePage() {
           padding-left: 8px;
           padding-top: 25px;
         }
+        .my_name{
+          font-family:"KATURI";
+        }
+        .my_score{
+          font-family:"KATURI";
+        }
         .other_message{
           float: left;
           background-color: white;
@@ -413,13 +437,16 @@ export default function GamePage() {
         .ready{
           height: 5vh;
           margin:auto;
+          display: flex;
+          flex-direction: column; 
         }
         .ready_btn{
           background-color: ${btn_background};
           border: none;
           padding: 5px 16px;
           color: white;
-          font-size: 20px;
+          font-family: "KATURI";
+          font-size: 25px;
           font-weight: bold;
           margin-right: 10px;
         }
@@ -432,7 +459,8 @@ export default function GamePage() {
           border: none;
           padding: 5px 16px;
           color: white;
-          font-size: 20px;
+          font-family: "KATURI";
+          font-size: 25px;
           font-weight: bold;
           margin-left: 10px;
         }
@@ -443,6 +471,7 @@ export default function GamePage() {
         
       `}
       </style>
+      </motion.div>
     </>
   )
 }

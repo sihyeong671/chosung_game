@@ -14,6 +14,7 @@ import { Color } from '../utils/color/colors'
 import VerticalLayout from '../components/VerticalLayout'
 import HorizontalLayout from '../components/HorizontalLayout'
 import { shouldForwardProp } from '@mui/styled-engine'
+import { motion } from 'framer-motion'
 
 function NextArrow(props){
 
@@ -41,6 +42,7 @@ function PrevArrow(props){
 export default function Lobby(){
 
   let my_info
+
   const settings = {
     dots: true,
     infinite: false,
@@ -51,6 +53,18 @@ export default function Lobby(){
     nextArrow: <NextArrow/>,
     prevArrow: <PrevArrow/>
   };
+
+  const slide = {
+    hidden: {
+        x: '-100%',
+        opacity: 0,
+    },
+    visible: {
+        x: 0,
+        opacity: 1
+    }
+  }
+
   const [show_modal, set_show_modal] = useState(false)
   const [room_list, set_room_list] = useState([])
   const [rooms, set_rooms] = useState({})
@@ -157,153 +171,163 @@ export default function Lobby(){
 
   return(
     <>
-      <div className='screen_wrapper'>
-        <div className='ranking_wrapper'>
-          <div className='ranking'>
-            {sorted_infos.map((user_info, idx)=>{
-              return(
-                <UserCard 
-                  key={uuid()}
-                  idx={idx+1}
-                  user_info={user_info}
-                />
-              )
-            })}
-          </div>
-          <div className='my_rank'>
-            <VerticalLayout>
-              <div>
-                내 랭킹 
-              </div>
-              <div>
-                {sessionStorage.getItem('nickname')}
-              </div>
-              <div>
-                <HorizontalLayout>
-                  <div className='my_place'>
-                    {my_info}위
+      <motion.div initial='hidden' animate='visible' exit='hidden' variants={slide}>
+        <div className='screen_wrapper'>
+          <div className='ranking_wrapper'>
+            <div className='ranking'>
+              {sorted_infos.map((user_info, idx)=>{
+                return(
+                  <UserCard 
+                    key={uuid()}
+                    idx={idx+1}
+                    user_info={user_info}
+                  />
+                )
+              })}
+            </div>
+            <div className='my_rank'>
+                <div className='rank_and_name'>
+                  <div className='rank'>
+                    내 랭킹 
+                    <div className='place_and_score'>
+                      <div className='my_place'>
+                        {my_info}위
+                      </div>
+                      <div className='my_score'>
+                        {my_score}점
+                      </div>
+                    </div>
                   </div>
-                  <div className='my_score'>
-                    {my_score}점
+                  <div className='name'>
+                    {sessionStorage.getItem('nickname')}
                   </div>
-                </HorizontalLayout>
-              </div>
-            </VerticalLayout>
+                </div>
+            </div>
           </div>
+          <div className='rooms_wrapper'>
+            <div className='button'>
+                <button className='make_room_btn' onClick={()=>{
+                  set_show_modal(true)
+                }}variant="contained">방 만들기</button>
+              <Link href="/GamePage">
+                <button disabled className='quick_enter_btn' onClick={()=>{
+                }} variant="contained">빠른 입장</button>
+              </Link>
+            </div>
+            <div className='slider'>
+              <Slider {...settings}>
+                {room_list}
+              </Slider>
+            </div>
+          </div>
+            
         </div>
-        <div className='rooms_wrapper'>
-          <div className='button'>
-              <button className='make_room_btn' onClick={()=>{
-                set_show_modal(true)
-              }}variant="contained">방 만들기</button>
-            <Link href="/GamePage">
-              <button className='quick_enter_btn' onClick={()=>{
-                quickEnter()
-              }} variant="contained">빠른 입장</button>
-            </Link>
-          </div>
-          <div className='slider'>
-            <Slider {...settings}>
-              {room_list}
-            </Slider>
-          </div>
-        </div>
-          
-      </div>
-      {show_modal? <CreateRoom className='modal' on_click_cancel={off_modal}/> : null}
-      <style jsx>{`
-        .screen_wrapper{
-          display: flex;
-          height: 100vh;
-        }
+        {show_modal? <CreateRoom className='modal' on_click_cancel={off_modal}/> : null}
+        <style jsx>{`
+          .screen_wrapper{
+            display: flex;
+            height: 100vh;
+          }
 
-        .ranking_wrapper{
-          flex-grow: 1;
-          padding: 3rem;
-          margin: 1rem;
-        }
-        .slider{
-          margin:3rem;
-        }
-        .ranking{
-          height: 60vh;
-          width: 30vw;
-          overflow-y: scroll;
-          overflow-x: hidden;
-        }
-        .ranking::-webkit-scrollbar{
-          width: 5px;
-        }
-        .ranking::-webkit-scrollbar-thumb{
-          background-color: ${Color.green_8};
-          border-radius: 10px;
-        }
-        .ranking::-webkit-scrollbar-track{
-          background-color: ${Color.green_3};
-          boreder-radius: 10px;
-        }
-        .my_rank{
-          border: 1px solid;
-          padding: 10px;
-          margin: 16px;
-          font-weight: bold;
-        }
-        .my_place{
-          margin-right: 10px;
-          margin-top: 10px;
-        }
-        .my_score{
-          margin-left: 10px;
-          margin-top: 10px;
-        }
-        .rooms_wrapper{
-          flex-grow: 1;
-          min-height: 0;
-          min-width: 0;
-        }
-        .button{
-          display: flex;
-          justify-content: center;
-        }
-        .make_room_btn{
-          background-color: ${Color.green_6};
-          border: none;
-          padding: 5px 16px;
-          color: white;
-          font-size: 20px;
-          font-weight: bold;
-          margin-right: 10px;
-        }
-        .make_room_btn:hover{
-          cursor: pointer;
-          background-color: ${Color.green_7} 
-        }
-        .quick_enter_btn{
-          background-color: ${Color.green_6};
-          border: none;
-          padding: 5px 16px;
-          color: white;
-          font-size: 20px;
-          font-weight: bold;
-          margin-right: 10px;
-        }
-        .quick_enter_btn:hover{
-          cursor: pointer;
-          background-color: ${Color.green_7};
-        }
-        .make_room{
-          background-color: black; 
-        }
-        .quick_enter{
-          margin-left: 1rem;
-        }
-        .slider{
-          width: 70vw;
-        }
-        .modal{
-          background:-color: ${Color.green_2};
-        }
-      `}</style>
+          .ranking_wrapper{
+            flex-grow: 1;
+            padding: 3rem;
+            margin: 1rem;
+          }
+          .slider{
+            margin:3rem;
+          }
+          .ranking{
+            height: 60vh;
+            width: 30vw;
+            overflow-y: scroll;
+            overflow-x: hidden;
+          }
+          .ranking::-webkit-scrollbar{
+            width: 5px;
+          }
+          .ranking::-webkit-scrollbar-thumb{
+            background-color: ${Color.green_8};
+            border-radius: 10px;
+          }
+          .ranking::-webkit-scrollbar-track{
+            background-color: ${Color.green_3};
+            boreder-radius: 10px;
+          }
+          .my_rank{
+            border: 1px solid;
+            padding: 10px;
+            margin: 16px;
+            font-weight: bold;
+          }
+          .my_place{
+            margin-right: 10px;
+            margin-top: 10px;
+          }
+          .my_score{
+            margin-left: 10px;
+            margin-top: 10px;
+          }
+          .rooms_wrapper{
+            flex-grow: 1;
+            min-height: 0;
+            min-width: 0;
+          }
+          .button{
+            display: flex;
+            justify-content: center;
+          }
+          .make_room_btn{
+            
+            font-family: "KATURI";
+            background-color: ${Color.green_6};
+            border: none;
+            padding: 5px 16px;
+            color: white;
+            font-size: 25px;
+            font-weight: bold;
+            margin-right: 10px;
+          }
+          .make_room_btn:hover{
+            cursor: pointer;
+            background-color: ${Color.green_7} 
+          }
+          .quick_enter_btn{
+            font-family: "KATURI";
+            background-color: ${Color.green_6};
+            border: none;
+            padding: 5px 16px;
+            color: white;
+            font-size: 25px;
+            font-weight: bold;
+            margin-right: 10px;
+          }
+          .quick_enter_btn:hover{
+            
+            cursor: pointer;
+            background-color: ${Color.green_7};
+          }
+          .make_room{
+            background-color: black; 
+          }
+          .quick_enter{
+            margin-left: 1rem;
+          }
+          .slider{
+            width: 70vw;
+          }
+          .modal{
+            background:-color: ${Color.green_2};
+          }
+          .rank_and_name{
+            display: flex;
+            justify-content: space-around; 
+          }
+          .place_and_score{
+            display:flex;
+          }
+        `}</style>
+      </motion.div>
     </>
   )
 }
