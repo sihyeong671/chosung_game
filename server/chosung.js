@@ -65,6 +65,14 @@ function isHangul(word){
 	return true;
 }
 
+function getHangulCnt(word){
+	let c=0;
+	for(i=0;i<word.length;i++){
+		if(isHangul(word[i]))c++;
+	}
+	return c;
+}
+
 function extract_chosung(str){
 	let hstr="";
 	for(i=0;i<str.length;i++){
@@ -189,7 +197,8 @@ io.sockets.on('connection', (socket) => {
 			is_in_game:false,
 			round_timerId:-1,
 			ticker_timerId:-1,
-			hint_timerId:-1
+			hint_timerId:-1,
+			ans_length:20
 		}
 		// console.log(rooms[room_id]);
 		console.log(`room made! : id ${room_id} , title ${data.title}`);
@@ -332,11 +341,12 @@ io.sockets.on('connection', (socket) => {
 				if(err)return handleError(err);
 				round=rooms[room_id].round
 				console.log('timersetting');
+				rooms[room_id].ans_length=getHangulCnt(sokdam.content);
 				clearInterval(rooms[room_id].hint_timerId);
 				clearTimeout(rooms[room_id].round_timerId);
 				clearInterval(rooms[room_id].ticker_timerId);
 				rooms[room_id].round_timerId=setTimeout(handle_timeout,60000);
-				rooms[room_id].hint_timerId=setInterval(handle_hint,3000);
+				rooms[room_id].hint_timerId=setInterval(handle_hint,Math.min(3000,54000/(rooms[room_id].ans_length)));
 				rooms[room_id].ticker_timerId=setInterval(handle_tick,1000);
 				rooms[room_id].sec=0;
 				rooms[room_id].answer=sokdam.content;
@@ -346,7 +356,8 @@ io.sockets.on('connection', (socket) => {
 				rooms[room_id].hint=extract_chosung(sokdam.content);
 				io.to(room_id).emit('round_start',{
 					round_number:round,
-					hint:rooms[room_id].hint
+					hint:rooms[room_id].hint,
+					type:"속담"
 				});
 				
 			})
@@ -359,11 +370,12 @@ io.sockets.on('connection', (socket) => {
 				if(err)return handleError(err);
 				round=rooms[room_id].round
 				console.log('timersetting');
+				rooms[room_id].ans_length=getHangulCnt(analect.content);
 				clearInterval(rooms[room_id].hint_timerId);
 				clearTimeout(rooms[room_id].round_timerId);
 				clearInterval(rooms[room_id].ticker_timerId);
 				rooms[room_id].round_timerId=setTimeout(handle_timeout,60000);
-				rooms[room_id].hint_timerId=setInterval(handle_hint,3000);
+				rooms[room_id].hint_timerId=setInterval(handle_hint,Math.min(3000,54000/(rooms[room_id].ans_length)));
 				rooms[room_id].ticker_timerId=setInterval(handle_tick,1000);
 				rooms[room_id].sec=0;
 				rooms[room_id].answer=analect.content;
@@ -373,7 +385,8 @@ io.sockets.on('connection', (socket) => {
 				rooms[room_id].hint=extract_chosung(analect.content);
 				io.to(room_id).emit('round_start',{
 					round_number:round,
-					hint:rooms[room_id].hint
+					hint:rooms[room_id].hint,
+					type:"유명 어록"
 				});
 				
 			})
