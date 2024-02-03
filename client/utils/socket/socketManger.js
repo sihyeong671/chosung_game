@@ -5,7 +5,7 @@ import { Chatting } from '../../components/Chatting';
 export let socket;
 
 export function connectSocket(){
-  socket = io("http://192.249.18.147:80")
+  socket = io("localhost:80")
   // 연결
   socket.on('connect', ()=>{
     console.log('connect');

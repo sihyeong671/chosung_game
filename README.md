@@ -25,9 +25,21 @@
 게임은 (방 안의 인원 수) * 3 라운드로 이루어져 있고, 각 라운드 별로 60초의 제한시간이 있습니다. 라운드가 시작되면 DB에 저장되어 있는 속담 또는 어록 초성 문제가 랜덤으로 보여집니다. 채팅창에 정답을 입력하는 방식으로 답을 입력할 수 있습니다. 정답을 입력하면 다른 사람에게는 보여지지 않습니다, 정답을 먼저 입력한 순서대로 점수를 차등 지급 합니다.
 
 ## Game Play
+아래 동영상을 클릭하여 재생
 [![main_screen](https://user-images.githubusercontent.com/77565951/151115852-d6c668bc-7639-4261-ad4d-3ed59a3e7ce7.png)](https://drive.google.com/file/d/1mqwKJLVev7EtDcnGh7aN_Zj7ueIvttVi/view?usp=sharing)
 
 ## Detail   
+
+### 실행 방법
+
+실행 환경에 맞춰서 server/chosung.js 의 listen 주소와 client/utils/socket/socketManager.js의 소켓 주소가 일치하도록 설정
+
+server와 client 폴더에서 각각 npm install 후 client에서는 `npm run dev`,
+server에서는 `node chosung.js` 로 실행
+
+mongo에서는 `test`라는 이름의 DB를 만들고 하위 컬렉션에 `sokdams` 와 `analects`를 생성
+
+그 후 각 컬렉션에 프로젝트 루트의 같은 이름의 csv파일을 import
 
 ### 사용한 라이브러리
 - socket.io

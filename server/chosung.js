@@ -307,7 +307,7 @@ io.sockets.on('connection', (socket) => {
 		if(room_id==-1||rooms[room_id].rcnt<=0)return;
 		console.log(`new round`);
 		if(rooms[room_id].round<=rooms[room_id].rcnt*2){
-			let rd=crypto.randomInt(1,602);
+			let rd=crypto.randomInt(1,100+1);
 			console.log(`sokdam, selected rd : ${rd}`);
 			Sokdam.findOne({id:rd},(err,sokdam)=>{
 				console.log(`findone`);
@@ -334,7 +334,7 @@ io.sockets.on('connection', (socket) => {
 			})
 		}
 		else{
-			let rd=crypto.randomInt(1,369);
+			let rd=crypto.randomInt(1,51+1);
 			console.log(`analect, selected rd : ${rd}`);
 			Analect.findOne({id:rd},(err,analect)=>{
 				console.log(`findone`);
